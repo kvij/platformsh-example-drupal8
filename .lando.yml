@@ -1,5 +1,5 @@
 # Change this name to something that makes sense for your project
-name: infiniteawesome
+name: changeme
 
 # Use the recipe appropriate for your application.
 recipe: drupal8
@@ -25,7 +25,7 @@ config:
 services:
   appserver:
     build:
-      - "curl -sS https://platform.sh/cli/installer | php"
+      - "cd /tmp && curl -sS https://platform.sh/cli/installer | php || true" # FIXME: Check forced success is still nessesary.
       - "cd $LANDO_MOUNT && composer install"
     overrides:
       services:
