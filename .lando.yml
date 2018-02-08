@@ -37,6 +37,10 @@ services:
         environment:
           BEHAT_PARAMS: '{"extensions" : {"Behat\\MinkExtension" : {"base_url" : "http://nginx/"}, "Drupal\\DrupalExtension" : {"drush" :   {  "root":  "/app/web" }}}}'
 
+  # Portforward can be set to a specific port for a subprocject
+  database:
+    portforward: true
+
   smtp:
     type: mailhog
     hogfrom:
