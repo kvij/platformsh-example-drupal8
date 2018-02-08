@@ -20,6 +20,11 @@ config:
   # Specify the version to match what's in services.yaml.
   database: mariadb:10.1
 
+# Url's for aditional services. Replace changeme with the project name
+proxy:
+  smtp:
+    - mail.changeme.lndo.site
+
 # The following additional build step will install the Platform CLI
 # in the application container and auto-run `composer install`
 services:
@@ -31,6 +36,11 @@ services:
       services:
         environment:
           BEHAT_PARAMS: '{"extensions" : {"Behat\\MinkExtension" : {"base_url" : "http://nginx/"}, "Drupal\\DrupalExtension" : {"drush" :   {  "root":  "/app/web" }}}}'
+
+  smtp:
+    type: mailhog
+    hogfrom:
+      - appserver
 
 # Ensure `composer install` also happens every time you start your site
 events:
