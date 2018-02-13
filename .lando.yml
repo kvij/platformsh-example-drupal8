@@ -39,8 +39,11 @@ services:
           BEHAT_PARAMS: '{"extensions" : {"Behat\\MinkExtension" : {"base_url" : "http://nginx/"}, "Drupal\\DrupalExtension" : {"drush" :   {  "root":  "/app/web" }}}}'
 
   # Portforward can be set to a specific port for a subprocject
+  # Imports default.sql.gz on first build. Use `lando db-export default.sql` to generate or update this file
   database:
     portforward: true
+    build:
+      - "cd $LANDO_MOUNT && scripts/ewise/conditional_import.sh"
 
   smtp:
     type: mailhog
