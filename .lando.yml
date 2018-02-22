@@ -16,6 +16,9 @@ config:
   # Set this to match the version in your .platform.app.yaml.
   php: 7.1
 
+  # Enable xdebug...
+  xdebug: true
+
   # Lando defaults to the latest MySQL release, but Platform.sh uses MariaDB.
   # Specify the version to match what's in services.yaml.
   database: mariadb:10.1
