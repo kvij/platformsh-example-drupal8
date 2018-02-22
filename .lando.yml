@@ -51,9 +51,12 @@ services:
       - appserver
 
 # Ensure `composer install` also happens every time you start your site
+# Ensure generated files are removed from cache before database is exported
 events:
   post-db-import:
     - appserver: "cd $LANDO_MOUNT && composer install"
+  pre-db-export:
+    - appserver: "cd $LANDO_MOUNT && drush cache-rebuild"
 
 # The following entry creates a `lando platform` command that will run
 # any Platform CLI command from inside the container if desired.
