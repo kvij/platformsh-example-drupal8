@@ -28,5 +28,8 @@ web/sites/*/settings.local.php
 *.tar
 *.zip
 
+# Explicitly allow default.sql.gz
+!default.sql.gz
+
 # Lint cache
 .phplint-cache
