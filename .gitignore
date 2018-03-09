@@ -1,3 +1,10 @@
+# Ignore generated files
+web/sites/*/files/css
+web/sites/*/files/js
+web/sites/*/files/php
+web/sites/*/files/languages
+web/sites/*/files/translations
+
 # Ignore credentials
 auth.json
 auth.env
