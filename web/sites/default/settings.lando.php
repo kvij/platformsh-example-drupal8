@@ -22,4 +22,11 @@ if (isset($_SERVER['LANDO'])) {
   // And a bogus hashsalt for now
   $settings['hash_salt'] = json_encode($databases);
 
+  // Set host pattern to default lando HTTP HOSTS
+  $settings['trusted_host_patterns'] = [
+    '^localhost$',
+    '\.lndo\.site$',
+    '\.localtunnel\.me$',
+    '^appserver$',
+  ];
 }
