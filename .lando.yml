@@ -36,6 +36,7 @@ services:
       - "cd /tmp && curl -sS https://platform.sh/cli/installer | php || true" # FIXME: Check forced success is still nessesary.
       - "composer global require hirak/prestissimo"
       - "cd $LANDO_MOUNT && composer install"
+      - "cd $LANDO_MOUNT && rm /app/web/sites/default/services.yml && drupal site:mode dev"
     overrides:
       services:
         environment:
