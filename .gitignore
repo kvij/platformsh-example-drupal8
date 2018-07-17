@@ -2,6 +2,7 @@
 web/sites/*/files/css
 web/sites/*/files/js
 web/sites/*/files/php
+web/sites/*/files/styles
 web/sites/*/files/languages
 web/sites/*/files/translations
 
