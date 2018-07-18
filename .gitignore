@@ -7,7 +7,7 @@ web/sites/*/files/languages
 web/sites/*/files/translations/*
 
 # Explicitly add the translations folder
-web/sites/*/files/translations/.htaccess
+!web/sites/*/files/translations/.htaccess
 
 # Ignore credentials
 auth.json
