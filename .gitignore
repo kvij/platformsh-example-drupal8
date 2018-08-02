@@ -32,7 +32,6 @@ web/profiles/contrib
 
 # Ignore configuration files that may contain sensitive information.
 web/sites/*/settings.local.php
-web/sites/*/services.yml
 
 # Ignore archives
 *.sql
