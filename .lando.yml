@@ -65,6 +65,10 @@ events:
 # The following entry creates a `lando platform` command that will run
 # any Platform CLI command from inside the container if desired.
 tooling:
+  "apply [force]":
+    service: appserver
+    description: Applies (often git) changes on disk to site. The force parameter enshures the environment reflects the last commit.
+    cmd: /app/scripts/ewise/development_cleanup.sh
   platform:
     service: appserver
     description: Run Platform CLI commands
