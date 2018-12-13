@@ -68,6 +68,10 @@ tooling:
   "apply [force]":
     service: appserver
     description: Applies (often git) changes on disk to site. The force parameter enshures the environment reflects the last commit.
+    cmd: cp -a /app/scripts/ewise/development_cleanup.sh /tmp && /tmp/development_cleanup.sh
+  "apply-unix [force]":
+    service: appserver
+    description: Same as 'lando apply' but without Windows trickery that does not work here.
     cmd: /app/scripts/ewise/development_cleanup.sh
   platform:
     service: appserver
