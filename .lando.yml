@@ -32,6 +32,8 @@ proxy:
 # in the application container and auto-run `composer install`
 services:
   appserver:
+    run_as_root:
+      - apt-get update -y && apt-get install -y nano # For git commit in container
     build:
       - "cd /tmp && curl -sS https://platform.sh/cli/installer | php || true" # FIXME: Check forced success is still nessesary.
       - "composer global require hirak/prestissimo"
@@ -73,6 +75,10 @@ tooling:
     service: appserver
     description: Same as 'lando apply' but without Windows trickery that does not work here.
     cmd: /app/scripts/ewise/development_cleanup.sh
+  commit:
+    service: appserver
+    description: Uniform way to commit all your site changes
+    cmd: /app/scripts/ewise/development_commit.sh
   platform:
     service: appserver
     description: Run Platform CLI commands
