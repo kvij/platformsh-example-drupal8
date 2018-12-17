@@ -12,12 +12,12 @@ function main {
 
     case $1 in
         ""|"soft"|"--soft")
-            echo "WARNING this command will destroy unexported configuration. Please export and commit changes you want to keep."
+            echo "WARNING this command will destroy unexported configuration and managed content changes. Please export and commit changes you want to keep."
             areYouShure
             softReset
-            echo "If the development environment is still not consistent please do 'lando apply'"
+            echo "If the development environment is still not consistent please do 'lando apply force'"
         ;;
-        "force"|"--force"|"forced")
+        "force"|"--force"|"forced"|"--hard"|"hard")
             echo "WARNING this command will destroy unexported and uncommited content, configuration and code. Please export and commit changes you want to keep."
             areYouShure
             hardReset
