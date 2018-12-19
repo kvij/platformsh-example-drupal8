@@ -5,6 +5,7 @@ web/sites/*/files/php
 web/sites/*/files/styles
 web/sites/*/files/languages
 web/sites/*/files/translations/*
+private/twig/*
 
 # Explicitly add the translations folder
 !web/sites/*/files/translations/.htaccess
@@ -44,3 +45,7 @@ web/sites/*/settings.local.php
 
 # Lint cache
 .phplint-cache
+
+# Miscellaneaus
+web/sites/example.*
+web/sites/simpletest
