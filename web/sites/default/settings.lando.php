@@ -29,4 +29,8 @@ if (isset($_SERVER['LANDO'])) {
     '\.localtunnel\.me$',
     '^appserver$',
   ];
+
+  // Enable development config
+  $settings['container_yamls'][] = $app_root . '/' . $site_path . '/development.services.yml';
+  $config['config_split.config_split.development']['status'] = TRUE; // NOTE: D8Base does not contain the actual configuration
 }
