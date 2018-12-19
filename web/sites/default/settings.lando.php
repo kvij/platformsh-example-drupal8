@@ -30,6 +30,18 @@ if (isset($_SERVER['LANDO'])) {
     '^appserver$',
   ];
 
+  // Configure private and temporary file paths.
+  if (!isset($settings['file_private_path'])) {
+    $settings['file_private_path'] = '../private';
+  }
+  // Configure the default PhpStorage and Twig template cache directories.
+  if (!isset($settings['php_storage']['default'])) {
+    $settings['php_storage']['default']['directory'] = $settings['file_private_path'];
+  }
+  if (!isset($settings['php_storage']['twig'])) {
+    $settings['php_storage']['twig']['directory'] = $settings['file_private_path'];
+  }
+
   // Enable development config
   $settings['container_yamls'][] = $app_root . '/' . $site_path . '/development.services.yml';
   $config['config_split.config_split.development']['status'] = TRUE; // NOTE: D8Base does not contain the actual configuration
