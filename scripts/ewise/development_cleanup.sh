@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 #
 # Description:
 #   This script ensures the development environment is pristine and that the site is in sync with
@@ -21,7 +21,11 @@ function main {
             echo "WARNING this command will destroy unexported and uncommited content, configuration and code. Please export and commit changes you want to keep."
             areYouShure
             hardReset
-            echo "If the development environment is still not consistent please do 'lando destroy; lando start; lando apply'"
+            echo "If the development environment is still not consistent please do 'lando destroy; lando start'"
+        ;;
+        "build-steps-only")
+            echo "Updating database from files"
+            commonBuildTasks
         ;;
         *)
             echo "USAGE: lando apply [force]"

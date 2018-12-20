@@ -22,6 +22,7 @@ then
   echo "Importing $file_name into $MYSQL_DATABASE"
   mysql --user=$MYSQL_USER --password=$MYSQL_PASSWORD -e "CREATE DATABASE IF NOT EXISTS $MYSQL_DATABASE;"
   gunzip -c $file_name | mysql --user=$MYSQL_USER --password=$MYSQL_PASSWORD $MYSQL_DATABASE
+  scripts/ewise/development_cleanup.sh build-steps-only
 fi
 
 exit 0
