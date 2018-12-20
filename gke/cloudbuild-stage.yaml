@@ -1,0 +1,30 @@
+steps:
+
+- name: 'eu.gcr.io/kuberdrupal/ewisealpine:latest'
+  args: ['sh', '-c', './gke/template.sh']
+  env:
+  - 'PROJECT_ID=$PROJECT_ID'
+  - 'REPO_NAME=$REPO_NAME'
+  - 'ENVIRONMENT=stage'
+  - 'BRANCH_NAME=$BRANCH_NAME'
+  - 'SHORT_SHA=$SHORT_SHA'
+  - 'TAG_NAME=$SHORT_SHA'  # We don't get an tag_name with commit-trigger
+  - 'COMMIT_SHA=$COMMIT_SHA'
+  - 'REPLICAS=1'
+
+- name: 'gcr.io/cloud-builders/docker'
+  args: ['build', '-t', 'eu.gcr.io/$PROJECT_ID/$REPO_NAME/stage:latest', '--build-arg', 'BASE_IMAGE_TAG=7.2', '.']
+  timeout: 500s
+
+- name: 'gcr.io/cloud-builders/docker'
+  args: ['push', 'eu.gcr.io/$PROJECT_ID/$REPO_NAME/stage:latest']
+
+- name: 'gcr.io/cloud-builders/kubectl'
+  args: ['apply', '-f', './gke/deploy-app.yaml', '--overwrite=true', '--record']
+  env:
+  - 'CLOUDSDK_COMPUTE_ZONE=europe-west4'
+  - 'CLOUDSDK_CONTAINER_CLUSTER=cluster-prod'
+
+timeout: 660s
+tags: ['elearnstage', 'e-learnstage']
+images: ['eu.gcr.io/$PROJECT_ID/$REPO_NAME/stage:latest']

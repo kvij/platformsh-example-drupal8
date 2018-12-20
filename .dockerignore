@@ -1,0 +1,8 @@
+web/sites/default/files/*
+private/*
+tests*
+app*
+node_modules*
+.git*
+.platform*
+.vscode*

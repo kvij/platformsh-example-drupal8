@@ -1,0 +1,258 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  creationTimestamp: null
+  name: "{{REPO_NAME}}{{ENVIRONMENT}}"
+  labels:
+    app: "{{REPO_NAME}}{{ENVIRONMENT}}"
+spec:
+  replicas: {{REPLICAS}}
+  # minReplicas: 2
+  # maxReplicas: 5
+  # targetCPUUtilizationPercentage: 50
+  selector:
+    matchLabels:
+      app: "{{REPO_NAME}}{{ENVIRONMENT}}"
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: "{{REPO_NAME}}{{ENVIRONMENT}}"
+        service: "{{REPO_NAME}}{{ENVIRONMENT}}"
+    spec:
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchExpressions:
+              - key: app
+                operator: In
+                values:
+                - "{{REPO_NAME}}{{ENVIRONMENT}}"
+            topologyKey: "kubernetes.io/hostname"
+      initContainers:
+      - name: volume-mount-hack
+        image: busybox
+        command: ["sh", "-c",
+          "mkdir -p /var/www/html/web/sites/default/files && chown -R 1000:1000 /var/www/html && chmod -R ug+ws /var/www/html"
+        ]
+        volumeMounts:
+        - mountPath: /var/www/html
+          name: drupal-files
+      containers:
+        # [nginx]
+        - image: wodby/nginx:1.15
+          resources:
+            requests:
+              cpu: "20m"
+              memory: "30Mi"
+          readinessProbe:  # Check when`the pod is ready and then replace existing pods
+            httpGet:
+              path: /health?readiness
+              port: 80
+              httpHeaders:
+              - name: Host
+                value: healthcheck
+            initialDelaySeconds: 1
+            periodSeconds: 30
+            timeoutSeconds: 2
+          livenessProbe:  # Check if pod needs to be killed and restarted
+            httpGet:
+              path: /health?liveness
+              port: 80
+              httpHeaders:
+              - name: Host
+                value: healthcheck
+            initialDelaySeconds: 15
+            periodSeconds: 30
+            timeoutSeconds: 2
+            failureThreshold: 2
+          env:
+          - name: NGINX_VHOST_PRESET
+            value: "drupal8"
+          - name: DRUPAL_VERSION
+            value: "8"
+          - name: NGINX_SERVER_NAME
+            value: localhost
+          - name: NGINX_SET_REAL_IP_FROM
+            value: '10.0.0.0/8'
+          - name: "NGINX_REAL_IP_RECURSIVE"
+            value: "on"
+          - name : "NGINX_REAL_IP_HEADER"
+            value: "X-Forwarded-For" # X-Real-IP
+          - name: "NGINX_LOG_FORMAT_SHOW_REAL_IP"
+            value: "on"
+          - name: NGINX_SERVER_EXTRA_CONF_FILEPATH
+            value: "/var/www/html/gke/nginx.conf"
+          - name: NGINX_UPSTREAM_NAME
+            value: "{{REPO_NAME}}"
+          - name: NGINX_BACKEND_HOST
+            value: localhost
+          - name: NGINX_SERVER_ROOT
+            value: /var/www/html/web
+          - name: NGINX_CLIENT_MAX_BODY_SIZE
+            value: "40M"
+          name: nginx
+          ports:
+          - containerPort: 80
+          volumeMounts:
+          - mountPath: /var/www/html
+            name: drupal-files
+            readOnly: true
+          - mountPath: /var/www/html/web/sites/default/files
+            name: nfs
+            subPath: "{{REPO_NAME}}/{{ENVIRONMENT}}/files"
+            readOnly: true
+
+        # [cloudsql_proxy_container]
+        - image: gcr.io/cloudsql-docker/gce-proxy:1.13
+          name: cloudsql-proxy
+          resources:
+            requests:
+              cpu: "20m"
+              memory: "10Mi"
+          command: ["/cloud_sql_proxy", "--dir=/cloudsql",
+                    "-instances=kuberdrupal:europe-west4:cloudmysql=tcp:3306",
+                    "-credential_file=/secrets/cloudsql/credentials.json",
+                    "-verbose=false"]
+          volumeMounts:
+          - name: cloudsql-instance-credentials
+            mountPath: /secrets/cloudsql
+            readOnly: true
+          - name: cloudsql
+            mountPath: /cloudsql
+          - name: ssl-certs
+            mountPath: /etc/ssl/certs
+
+        # [smtpd_relay_container]
+        - image: wodby/opensmtpd:6-1.4.0
+          name: smtp
+          resources:
+            requests:
+              cpu: "20m"
+              memory: "10Mi"
+          env:
+          - name: RELAY_HOST
+            value: in-v3.mailjet.com
+          - name: RELAY_PORT
+            value: "587"
+          - name: RELAY_USER
+            valueFrom:
+              secretKeyRef:
+                name: smtpd-credentials
+                key: username
+          - name: RELAY_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: smtpd-credentials
+                key: password
+
+        # [Drupal {{REPO_NAME}}]
+        - image: "eu.gcr.io/{{PROJECT}}/github-ewisenl-{{REPO_NAME}}/{{ENVIRONMENT}}:latest"
+          imagePullPolicy: Always
+          name: drupal
+          resources:
+            requests:
+              cpu: "50m"
+              memory: "512Mi"
+          env:
+          - name: PROJECT
+            value: "{{PROJECT}}"
+          - name: ENVIRONMENT
+            value: "{{ENVIRONMENT}}"
+          - name: REPLICAS
+            value: "{{REPLICAS}}"
+          - name: REPO_NAME
+            value: "{{REPO_NAME}}"
+          - name: BRANCH_NAME
+            value: "{{BRANCH_NAME}}"
+          - name: COMMIT_ID
+            value: "{{COMMIT_ID}}"
+          - name: TAG
+            value: "{{TAG}}"
+          - name: COMMITMSG
+            value: "{{COMMITMSG}}"
+          - name: PHP_FPM_PM_START_SERVERS
+            value: "8"
+          - name: PHP_FPM_PM_MIN_SPARE_SERVERS
+            value: "8"
+          - name: PHP_FPM_PM_MAX_SPARE_SERVERS
+            value: "12"
+          - name: PHP_FPM_PM_MAX_CHILDREN
+            value: "20"
+          - name: PHP_OPCACHE_MEMORY_CONSUMPTION
+            value: "256"
+          - name: PHP_OPCACHE_MAX_ACCELERATED_FILES
+            value: "6144"
+          - name: PHP_REALPATH_CACHE_SIZE
+            value: 1M
+          - name: PHP_MEMORY_LIMIT
+            value: 512M
+          - name: PHP_FPM_CLEAR_ENV
+            value: "no"
+          - name: KUBER
+            value: "true"
+          - name: PHP_SITE_NAME
+            value: "{{REPO_NAME}}"
+          - name: PHP_HOST_NAME
+            value: localhost:8000
+          - name: PHP_SENDMAIL_PATH
+            value: /usr/sbin/sendmail -t -i
+          - name: DB_HOST
+            value: "127.0.0.1"
+          - name: DB_PORT
+            value: "3306"
+          - name: DB_NAME
+            value: "{{REPO_NAME}}{{ENVIRONMENT}}"
+          - name: DB_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: "cloudsql-db-{{REPO_NAME}}"
+                key: password
+          - name: DB_USER
+            valueFrom:
+              secretKeyRef:
+                name: "cloudsql-db-{{REPO_NAME}}"
+                key: username
+          - name: SLACK_BOT_TOKEN
+            valueFrom:
+              secretKeyRef:
+                name: slack-bot-token
+                key: token
+          volumeMounts:
+          - mountPath: /var/www/html
+            name: drupal-files
+          - mountPath: /var/www/html/web/sites/default/files
+            name: nfs
+            subPath: "{{REPO_NAME}}/{{ENVIRONMENT}}/files"
+          - mountPath: /var/www/html/private
+            name: nfs
+            subPath: "{{REPO_NAME}}/{{ENVIRONMENT}}/private"
+          - name: "cloudsql-db-{{REPO_NAME}}"
+            mountPath: /cloudsqldb
+            readOnly: true
+          lifecycle:
+            postStart:
+              exec:
+                command:
+                - "/bin/sh"
+                - "-c"
+                - "/usr/src/app/gke/initpod.sh >/var/www/html/initpod.log 2>&1"
+
+      volumes:
+        - name: drupal-files
+          emptyDir: {}
+        - name: nfs
+          persistentVolumeClaim:
+            claimName: nfs
+        - name: cloudsql-instance-credentials
+          secret:
+            secretName: cloudsql-instance-credentials
+        - name: "cloudsql-db-{{REPO_NAME}}"
+          secret:
+            secretName: "cloudsql-db-{{REPO_NAME}}"
+        - name: ssl-certs
+          hostPath:
+            path: /etc/ssl/certs
+        - name: cloudsql
+          emptyDir:
