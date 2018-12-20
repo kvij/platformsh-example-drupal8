@@ -66,6 +66,9 @@ function commonBuildTasks {
     composer install
 	drush -y cache-rebuild
 	drush -y updatedb
+	# Extra import when config_split is not enabled yet
+	drush pm:list --status=enabled --type=module --no-core --fields=name | grep -q 'config_split' \
+	    || drush -y config-import
 	drush -y config-import
 	drush -y entup
     if drush pm:list --status=enabled --type=module --no-core --fields=name | grep -q 'default_content_deploy'
