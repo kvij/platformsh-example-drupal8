@@ -8,6 +8,16 @@ parameters:
     debug: true
     auto_reload: true
     cache: false
+
+  cors.config:
+    enabled: true
+    allowedHeaders: ['*']
+    allowedMethods: ['*']
+    allowedOrigins: ['*']
+    exposedHeaders: false
+    maxAge: false
+    supportsCredentials: true
+
 services:
   cache.backend.null:
     class: Drupal\Core\Cache\NullBackendFactory
