@@ -203,7 +203,7 @@ spec:
           - name: DB_PORT
             value: "3306"
           - name: DB_NAME
-            value: "{{REPO_NAME}}{{ENVIRONMENT}}"
+            value: "{{DATABASE_NAME}}{{ENVIRONMENT}}"
           - name: DB_PASSWORD
             valueFrom:
               secretKeyRef:
@@ -237,7 +237,7 @@ spec:
                 command:
                 - "/bin/sh"
                 - "-c"
-                - "/usr/src/app/gke/initpod.sh"
+                - "/usr/src/app/gke/initpod-ng.sh"
 
       volumes:
         - name: drupal-files
