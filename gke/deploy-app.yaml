@@ -237,7 +237,7 @@ spec:
                 command:
                 - "/bin/sh"
                 - "-c"
-                - "/usr/src/app/gke/initpod.sh >/var/www/html/initpod.log 2>&1"
+                - "/usr/src/app/gke/initpod.sh"
 
       volumes:
         - name: drupal-files
