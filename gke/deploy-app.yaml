@@ -235,8 +235,6 @@ spec:
             postStart:
               exec:
                 command:
-                - "/bin/sh"
-                - "-c"
                 - "/usr/src/app/gke/initpod.sh"
 
       volumes:
