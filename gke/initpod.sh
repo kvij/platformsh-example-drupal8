@@ -4,7 +4,7 @@ set -eEo pipefail
 APP_SRC='/usr/src/app'
 APP_ROOT='/var/www/html'
 LOG_FILE="$APP_ROOT/initpod.log"
-STATE_FILE="$APP_ROOT/private/tmp$COMMIT_ID"
+STATE_FILE="$APP_ROOT/private/tmp$COMMIT_ID.state"
 
 # Abort when something goes wrong
 trap abort ERR
@@ -101,9 +101,9 @@ function import_content {
 }
 
 function updater_lock {
-    if [[ ! -f "$STATE_FILE" ]] || grep -q FAILED "$STATE_FILE"; then
-        rm private/tmp*
-        touch "private/tmp$COMMIT_ID"
+    if [[ ! -f "$STATE_FILE" ]] || grep -q 'FAILED' "$STATE_FILE"; then
+        rm -f "$(dirname "$STATE_FILE")/"*".state" # Remove older statefiles
+        truncate -s 0 "$STATE_FILE"
         SITE_UPDATER='TRUE'
         log "#### Additional Drupal update tasks will be performed ####"
     else
@@ -135,9 +135,10 @@ function unlock {
 
 function abort {
     trap - EXIT
+    echo 'FAILED' > "$STATE_FILE"
     log "Aborting..."
     send_log
-    exit 1
+    exit 0
 }
 
 # Log to STDOUT and a logfile
