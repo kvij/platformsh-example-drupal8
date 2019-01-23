@@ -40,7 +40,7 @@ function print_header {
 
 # Set up additional environment info
 function detect_environment {
-    if [[ -n "$ENVIRONMENT" ]] && [[ "$ENVIRONMENT" != "stageing" ]] && [[ "$ENVIRONMENT" != "production" ]]
+    if [[ -n "$ENVIRONMENT" ]] && [[ "$ENVIRONMENT" != "staging" ]] && [[ "$ENVIRONMENT" != "production" ]]
     then
         DEVELOPMENT_ENVIRONMENT='TRUE'
     fi

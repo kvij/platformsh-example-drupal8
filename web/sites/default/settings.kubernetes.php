@@ -35,7 +35,7 @@ if (getenv('KUBER')) {
   }
 
   // Enable development config when appropriate
-  if (!in_array(getenv('ENVIRONMENT'), ['', 'stageing', 'production'])) {
+  if (!in_array(getenv('ENVIRONMENT'), ['', 'staging', 'production'])) {
     $settings['container_yamls'][] = $app_root . '/' . $site_path . '/development.services.yml';
     $config['config_split.config_split.development']['status'] = TRUE;
   }
