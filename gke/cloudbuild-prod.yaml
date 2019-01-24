@@ -26,5 +26,5 @@ steps:
   - 'CLOUDSDK_CONTAINER_CLUSTER=cluster-prod'
 
 timeout: 660s
-tags: ['elearnprod', 'e-learnprod']
+tags: ['${REPO_NAME}staging', '${REPO_NAME}staging']
 images: ['eu.gcr.io/$PROJECT_ID/$REPO_NAME/prod:latest']
