@@ -29,7 +29,7 @@ function main {
 }
 
 function print_header {
-    date
+    loge date
     logf '\n*************** COMMIT MESSAGE **************\n'
     loge cat "$APP_SRC/commitmsg"
     logf '*********************************************\n'
@@ -132,7 +132,7 @@ function unlock {
     fi
     log 'Starting cron daemon'
     sudo -E /usr/sbin/crond
-    date
+    loge date
     send_log
 }
 
