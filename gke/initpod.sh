@@ -35,7 +35,7 @@ function print_header {
     logf '*********************************************\n'
     logf "Variables: \n"
     logf " # REPO_NAME=%s\n # ENVIRONMENT=%s\n # BRANCH_NAME=%s\n" "$REPO_NAME" "$ENVIRONMENT" "$BRANCH_NAME"
-    logf " # REPLICAS=%s\n # COMMIT_ID=%s\n # TAG=%s\n" "$REPLICAS" "$COMMIT_ID" "$TAG"
+    logf " # REPLICAS=%s\n # COMMIT_ID=%s\n # TAG=%s\n" "$REPLICAS" "$SHORT_SHA" "$TAG_NAME"
 }
 
 # Set up additional environment info

@@ -150,7 +150,7 @@ spec:
                 key: password
 
         # [Drupal {{REPO_NAME}}]
-        - image: "eu.gcr.io/{{PROJECT}}/github-ewisenl-{{REPO_NAME}}/{{ENVIRONMENT}}:latest"
+        - image: "eu.gcr.io/{{PROJECT_ID}}/github-ewisenl-{{REPO_NAME}}/{{ENVIRONMENT}}:latest"
           imagePullPolicy: Always
           name: drupal
           resources:
@@ -158,8 +158,8 @@ spec:
               cpu: "50m"
               memory: "512Mi"
           env:
-          - name: PROJECT
-            value: "{{PROJECT}}"
+          - name: PROJECT_ID
+            value: "{{PROJECT_ID}}"
           - name: ENVIRONMENT
             value: "{{ENVIRONMENT}}"
           - name: REPLICAS
@@ -168,10 +168,10 @@ spec:
             value: "{{REPO_NAME}}"
           - name: BRANCH_NAME
             value: "{{BRANCH_NAME}}"
-          - name: COMMIT_ID
-            value: "{{COMMIT_ID}}"
-          - name: TAG
-            value: "{{TAG}}"
+          - name: SHORT_SHA
+            value: "{{SHORT_SHA}}"
+          - name: TAG_NAME
+            value: "{{TAG_NAME}}"
           - name: COMMITMSG
             value: "{{COMMITMSG}}"
           - name: PHP_FPM_PM_START_SERVERS
