@@ -53,7 +53,7 @@ function prepare_src {
     then
         logt cp -r "$APP_SRC/." "$APP_ROOT"
     else
-        logt rync -qr --exclude-from-file="$APP_SRC/gke/rsync-prod.exclude" "$APP_SRC/" "$APP_ROOT"
+        logt rsync -qr --exclude-from="$APP_SRC/gke/rsync-prod.exclude" "$APP_SRC/" "$APP_ROOT"
     fi
     mv 'web/index.php' 'web/index.wait'  # Be unhealthy until site update tasks are completed
 }
