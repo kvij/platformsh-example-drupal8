@@ -99,12 +99,12 @@ spec:
           - mountPath: /var/www/html
             name: drupal-files
             readOnly: true
-        {% if ENVIRONMENT == 'prod' or ENVIRONMENT == 'staging' %}
+{% if ENVIRONMENT == 'prod' or ENVIRONMENT == 'staging' %}
           - mountPath: /var/www/html/web/sites/default/files
             name: nfs
             subPath: "{{REPO_NAME}}/{{ENVIRONMENT}}/files"
             readOnly: true
-        {% endif %}
+{% endif %}
 
         # [cloudsql_proxy_container]
         - image: gcr.io/cloudsql-docker/gce-proxy:1.13
@@ -224,14 +224,14 @@ spec:
           volumeMounts:
           - mountPath: /var/www/html
             name: drupal-files
-        {% if ENVIRONMENT == 'prod' or ENVIRONMENT == 'staging' %}
+{% if ENVIRONMENT == 'prod' or ENVIRONMENT == 'staging' %}
           - mountPath: /var/www/html/web/sites/default/files
             name: nfs
             subPath: "{{REPO_NAME}}/{{ENVIRONMENT}}/files"
           - mountPath: /var/www/html/private
             name: nfs
             subPath: "{{REPO_NAME}}/{{ENVIRONMENT}}/private"
-        {% endif %}
+{% endif %}
           - name: "cloudsql-db-{{REPO_NAME}}"
             mountPath: /cloudsqldb
             readOnly: true
@@ -244,11 +244,11 @@ spec:
       volumes:
         - name: drupal-files
           emptyDir: {}
-      {% if ENVIRONMENT == 'prod' or ENVIRONMENT == 'staging' %}
+{% if ENVIRONMENT == 'prod' or ENVIRONMENT == 'staging' %}
         - name: nfs
           persistentVolumeClaim:
             claimName: nfs
-      {% endif %}
+{% endif %}
         - name: cloudsql-instance-credentials
           secret:
             secretName: cloudsql-instance-credentials
