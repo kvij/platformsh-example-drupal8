@@ -173,7 +173,7 @@ spec:
           - name: TAG_NAME
             value: "{{TAG_NAME}}"
           - name: COMMITMSG
-            value: "{{COMMITMSG}}"
+            value: '{{COMMITMSG_YML|raw}}'
           - name: PHP_FPM_PM_START_SERVERS
             value: "8"
           - name: PHP_FPM_PM_MIN_SPARE_SERVERS
