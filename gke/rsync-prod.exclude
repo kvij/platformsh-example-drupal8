@@ -1,0 +1,7 @@
+/web/sites/default/files
+/private
+/tests
+/keys
+/config/contentsync
+default.sql.gz
+

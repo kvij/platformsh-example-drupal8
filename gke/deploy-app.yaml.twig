@@ -99,10 +99,12 @@ spec:
           - mountPath: /var/www/html
             name: drupal-files
             readOnly: true
+        {% if ENVIRONMENT == 'prod' or ENVIRONMENT == 'staging' %}
           - mountPath: /var/www/html/web/sites/default/files
             name: nfs
             subPath: "{{REPO_NAME}}/{{ENVIRONMENT}}/files"
             readOnly: true
+        {% endif %}
 
         # [cloudsql_proxy_container]
         - image: gcr.io/cloudsql-docker/gce-proxy:1.13
@@ -203,7 +205,7 @@ spec:
           - name: DB_PORT
             value: "3306"
           - name: DB_NAME
-            value: "{{DATABASE_NAME}}{{ENVIRONMENT}}"
+            value: "{{DATABASE_NAME}}"
           - name: DB_PASSWORD
             valueFrom:
               secretKeyRef:
@@ -222,12 +224,14 @@ spec:
           volumeMounts:
           - mountPath: /var/www/html
             name: drupal-files
+        {% if ENVIRONMENT == 'prod' or ENVIRONMENT == 'staging' %}
           - mountPath: /var/www/html/web/sites/default/files
             name: nfs
             subPath: "{{REPO_NAME}}/{{ENVIRONMENT}}/files"
           - mountPath: /var/www/html/private
             name: nfs
             subPath: "{{REPO_NAME}}/{{ENVIRONMENT}}/private"
+        {% endif %}
           - name: "cloudsql-db-{{REPO_NAME}}"
             mountPath: /cloudsqldb
             readOnly: true
@@ -240,9 +244,11 @@ spec:
       volumes:
         - name: drupal-files
           emptyDir: {}
+      {% if ENVIRONMENT == 'prod' or ENVIRONMENT == 'staging' %}
         - name: nfs
           persistentVolumeClaim:
             claimName: nfs
+      {% endif %}
         - name: cloudsql-instance-credentials
           secret:
             secretName: cloudsql-instance-credentials

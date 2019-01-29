@@ -5,7 +5,7 @@ steps:
   env:
   - 'PROJECT_ID=$PROJECT_ID'
   - 'REPO_NAME=$REPO_NAME'
-  - 'ENVIRONMENT=staging'
+  - 'ENVIRONMENT=testing'
   - 'BRANCH_NAME=$BRANCH_NAME'
   - 'SHORT_SHA=$SHORT_SHA'
   - 'TAG_NAME=$SHORT_SHA'  # We don't get an tag_name with commit-trigger
@@ -13,11 +13,11 @@ steps:
   - 'REPLICAS=1'
 
 - name: 'gcr.io/cloud-builders/docker'
-  args: ['build', '-t', 'eu.gcr.io/$PROJECT_ID/$REPO_NAME/staging:latest', '--build-arg', 'BASE_IMAGE_TAG=7.2', '.']
+  args: ['build', '-t', 'eu.gcr.io/$PROJECT_ID/$REPO_NAME/testing:latest', '--build-arg', 'BASE_IMAGE_TAG=7.2', '.']
   timeout: 500s
 
 - name: 'gcr.io/cloud-builders/docker'
-  args: ['push', 'eu.gcr.io/$PROJECT_ID/$REPO_NAME/staging:latest']
+  args: ['push', 'eu.gcr.io/$PROJECT_ID/$REPO_NAME/testing:latest']
 
 - name: 'gcr.io/cloud-builders/kubectl'
   args: ['apply', '-f', './gke/deploy-app.yaml', '--overwrite=true', '--record']
@@ -26,5 +26,5 @@ steps:
   - 'CLOUDSDK_CONTAINER_CLUSTER=cluster-prod'
 
 timeout: 660s
-tags: ['${REPO_NAME}staging', '${REPO_NAME}staging']
-images: ['eu.gcr.io/$PROJECT_ID/$REPO_NAME/staging:latest']
+tags: ['${REPO_NAME}testing', '${REPO_NAME}testing']
+images: ['eu.gcr.io/$PROJECT_ID/$REPO_NAME/testing:latest']

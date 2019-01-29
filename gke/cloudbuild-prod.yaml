@@ -1,7 +1,7 @@
 steps:
 
 - name: 'eu.gcr.io/kuberdrupal/ewisealpine:latest'
-  args: ['sh', '-c', './gke/template.sh']
+  args: ['/usr/local/bin/template.sh', 'gke/deploy-app.yaml.twig']
   env:
   - 'PROJECT_ID=$PROJECT_ID'
   - 'REPO_NAME=$REPO_NAME'

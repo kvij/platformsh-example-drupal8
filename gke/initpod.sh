@@ -31,7 +31,7 @@ function main {
 function print_header {
     loge date
     logf '\n*************** COMMIT MESSAGE **************\n'
-    loge cat "$APP_SRC/commitmsg"
+    log  "$COMMITMSG"
     logf '*********************************************\n'
     logf "Variables: \n"
     logf " # REPO_NAME=%s\n # ENVIRONMENT=%s\n # BRANCH_NAME=%s\n" "$REPO_NAME" "$ENVIRONMENT" "$BRANCH_NAME"
@@ -49,7 +49,12 @@ function detect_environment {
 # Copy source to ephemeral storage
 function prepare_src {
     log "### Copying repo content to $APP_ROOT ###"
-    logt cp -r "$APP_SRC/." "$APP_ROOT"
+    if [[ -n "$DEVELOPMENT_ENVIRONMENT" ]]
+    then
+        logt cp -r "$APP_SRC/." "$APP_ROOT"
+    else
+        logt rync -qr --exclude-from-file="$APP_SRC/gke/rsync-prod.exclude" "$APP_SRC/" "$APP_ROOT"
+    fi
     mv 'web/index.php' 'web/index.wait'  # Be unhealthy until site update tasks are completed
 }
 
@@ -75,6 +80,12 @@ function install_health_check {
 }
 
 function update_database {
+    if [[ -n "$DEVELOPMENT_ENVIRONMENT" ]]
+    then
+        logf '\n### Import default.sql.gz ###\n'
+        gunzip -c "$APP_SRC/default.sql.gz" | mysql --user="$DB_USER" --password="$DB_PASSWORD" "$DB_NAME"
+    fi
+
     logf '\n### Do database updates ###\n'
     logt drush updatedb -y
     logf '\n### Apply entity updates ###\n'
