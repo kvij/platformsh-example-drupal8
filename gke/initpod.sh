@@ -82,8 +82,9 @@ function install_health_check {
 function update_database {
     if [[ -n "$DEVELOPMENT_ENVIRONMENT" ]]
     then
-        logf '\n### Import default.sql.gz ###\n'
-        gunzip -c "$APP_SRC/default.sql.gz" | mysql --user="$DB_USER" --password="$DB_PASSWORD" "$DB_NAME"
+        logf '\n### Importing default.sql.gz ###\n'
+        loge mysql --host="$DB_HOST" --user="$DB_USER" --password="$DB_PASSWORD" -e 'DROP DATABASE IF EXISTS `'"$DB_NAME"'`; CREATE DATABASE `'"$DB_NAME"'`;'
+        gunzip -c "$APP_SRC/default.sql.gz" | mysql --host="$DB_HOST" --user="$DB_USER" --password="$DB_PASSWORD" "$DB_NAME" 2>&1 | tee -a "$LOG_FILE"
     fi
 
     logf '\n### Do database updates ###\n'
