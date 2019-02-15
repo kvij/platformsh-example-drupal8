@@ -195,6 +195,8 @@ function loge {
 function send_log {
     [[ -n "$SITE_UPDATER" ]] &&
         curl https://slack.com/api/files.upload -F token="$SLACK_BOT_TOKEN" -F channels="build" -F title="Updating $REPO_NAME$ENVIRONMENT database" -F filename="initpod.log" -F file=@"$LOG_FILE" -F filetype="text"
+
+    return 0 # Prevents accidental return 1 when test is false
 }
 
 main "$@"
