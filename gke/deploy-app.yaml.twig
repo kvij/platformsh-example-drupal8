@@ -2,9 +2,9 @@ apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
   creationTimestamp: null
-  name: "{{REPO_NAME}}{{ENVIRONMENT}}"
+  name: "{{REPO_NAME_SHORT}}{{ENVIRONMENT}}"
   labels:
-    app: "{{REPO_NAME}}{{ENVIRONMENT}}"
+    app: "{{REPO_NAME_SHORT}}{{ENVIRONMENT}}"
 spec:
   replicas: {{REPLICAS}}
   # minReplicas: 2
@@ -12,13 +12,13 @@ spec:
   # targetCPUUtilizationPercentage: 50
   selector:
     matchLabels:
-      app: "{{REPO_NAME}}{{ENVIRONMENT}}"
+      app: "{{REPO_NAME_SHORT}}{{ENVIRONMENT}}"
   template:
     metadata:
       creationTimestamp: null
       labels:
-        app: "{{REPO_NAME}}{{ENVIRONMENT}}"
-        service: "{{REPO_NAME}}{{ENVIRONMENT}}"
+        app: "{{REPO_NAME_SHORT}}{{ENVIRONMENT}}"
+        service: "{{REPO_NAME_SHORT}}{{ENVIRONMENT}}"
     spec:
       affinity:
         podAntiAffinity:
@@ -28,7 +28,7 @@ spec:
               - key: app
                 operator: In
                 values:
-                - "{{REPO_NAME}}{{ENVIRONMENT}}"
+                - "{{REPO_NAME_SHORT}}{{ENVIRONMENT}}"
             topologyKey: "kubernetes.io/hostname"
       initContainers:
       - name: volume-mount-hack
@@ -85,7 +85,7 @@ spec:
           - name: NGINX_SERVER_EXTRA_CONF_FILEPATH
             value: "/var/www/html/gke/nginx.conf"
           - name: NGINX_UPSTREAM_NAME
-            value: "{{REPO_NAME}}"
+            value: "{{REPO_NAME_SHORT}}"
           - name: NGINX_BACKEND_HOST
             value: localhost
           - name: NGINX_SERVER_ROOT
@@ -102,7 +102,7 @@ spec:
 {% if ENVIRONMENT == 'prod' or ENVIRONMENT == 'staging' %}
           - mountPath: /var/www/html/web/sites/default/files
             name: nfs
-            subPath: "{{REPO_NAME}}/{{ENVIRONMENT}}/files"
+            subPath: "{{REPO_NAME_SHORT}}/{{ENVIRONMENT}}/files"
             readOnly: true
 {% endif %}
 
@@ -149,8 +149,8 @@ spec:
                 name: smtpd-credentials
                 key: password
 
-        # [Drupal {{REPO_NAME}}]
-        - image: "eu.gcr.io/{{PROJECT_ID}}/github-ewisenl-{{REPO_NAME}}/{{ENVIRONMENT}}:latest"
+        # [Drupal {{REPO_NAME_SHORT}}]
+        - image: "eu.gcr.io/{{PROJECT_ID}}/{{REPO_NAME}}/{{ENVIRONMENT}}:latest"
           imagePullPolicy: Always
           name: drupal
           resources:
@@ -165,7 +165,7 @@ spec:
           - name: REPLICAS
             value: "{{REPLICAS}}"
           - name: REPO_NAME
-            value: "{{REPO_NAME}}"
+            value: "{{REPO_NAME_SHORT}}"
           - name: BRANCH_NAME
             value: "{{BRANCH_NAME}}"
           - name: SHORT_SHA
@@ -195,7 +195,7 @@ spec:
           - name: KUBER
             value: "true"
           - name: PHP_SITE_NAME
-            value: "{{REPO_NAME}}"
+            value: "{{REPO_NAME_SHORT}}"
           - name: PHP_HOST_NAME
             value: localhost:8000
           - name: PHP_SENDMAIL_PATH
@@ -209,12 +209,12 @@ spec:
           - name: DB_PASSWORD
             valueFrom:
               secretKeyRef:
-                name: "cloudsql-db-{{REPO_NAME}}"
+                name: "cloudsql-db-{{REPO_NAME_SHORT}}"
                 key: password
           - name: DB_USER
             valueFrom:
               secretKeyRef:
-                name: "cloudsql-db-{{REPO_NAME}}"
+                name: "cloudsql-db-{{REPO_NAME_SHORT}}"
                 key: username
           - name: SLACK_BOT_TOKEN
             valueFrom:
@@ -227,12 +227,12 @@ spec:
 {% if ENVIRONMENT == 'prod' or ENVIRONMENT == 'staging' %}
           - mountPath: /var/www/html/web/sites/default/files
             name: nfs
-            subPath: "{{REPO_NAME}}/{{ENVIRONMENT}}/files"
+            subPath: "{{REPO_NAME_SHORT}}/{{ENVIRONMENT}}/files"
           - mountPath: /var/www/html/private
             name: nfs
-            subPath: "{{REPO_NAME}}/{{ENVIRONMENT}}/private"
+            subPath: "{{REPO_NAME_SHORT}}/{{ENVIRONMENT}}/private"
 {% endif %}
-          - name: "cloudsql-db-{{REPO_NAME}}"
+          - name: "cloudsql-db-{{REPO_NAME_SHORT}}"
             mountPath: /cloudsqldb
             readOnly: true
           lifecycle:
@@ -252,9 +252,9 @@ spec:
         - name: cloudsql-instance-credentials
           secret:
             secretName: cloudsql-instance-credentials
-        - name: "cloudsql-db-{{REPO_NAME}}"
+        - name: "cloudsql-db-{{REPO_NAME_SHORT}}"
           secret:
-            secretName: "cloudsql-db-{{REPO_NAME}}"
+            secretName: "cloudsql-db-{{REPO_NAME_SHORT}}"
         - name: ssl-certs
           hostPath:
             path: /etc/ssl/certs
