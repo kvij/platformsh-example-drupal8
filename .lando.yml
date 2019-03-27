@@ -30,6 +30,7 @@ proxy:
 
 # The following additional build step will install the Platform CLI
 # in the application container and auto-run `composer install`
+# also imports default.sql.gz on first build. Use `lando db-export default.sql` to generate or update this file
 services:
   appserver:
     run_as_root:
@@ -38,17 +39,15 @@ services:
       - "cd /tmp && curl -sS https://platform.sh/cli/installer | php || true" # FIXME: Check forced success is still nessesary.
       - "composer global require hirak/prestissimo"
       - "cd $LANDO_MOUNT && composer install"
+      - "cd $LANDO_MOUNT && scripts/ewise/conditional_import.sh"
     overrides:
       services:
         environment:
           BEHAT_PARAMS: '{"extensions" : {"Behat\\MinkExtension" : {"base_url" : "http://nginx/"}, "Drupal\\DrupalExtension" : {"drush" :   {  "root":  "/app/web" }}}}'
 
   # Portforward can be set to a specific port for a subprocject
-  # Imports default.sql.gz on first build. Use `lando db-export default.sql` to generate or update this file
   database:
     portforward: true
-    build:
-      - "cd $LANDO_MOUNT && scripts/ewise/conditional_import.sh"
 
   smtp:
     type: mailhog
