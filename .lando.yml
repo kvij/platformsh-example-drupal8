@@ -33,8 +33,6 @@ proxy:
 # also imports default.sql.gz on first build. Use `lando db-export default.sql` to generate or update this file
 services:
   appserver:
-    run_as_root:
-      - apt-get update -y && apt-get install -y nano # For git commit in container
     build:
       - "cd /tmp && curl -sS https://platform.sh/cli/installer | php || true" # FIXME: Check forced success is still nessesary.
       - "composer global require hirak/prestissimo"

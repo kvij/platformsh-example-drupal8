@@ -24,7 +24,7 @@ function main {
             read -p "Your changes will be shown press 'q' to exit review mode. Press any key to continue" -n 1 -r
             git diff --staged
             areYouShure "Is everything you the way you want it to be?" n resetAndQuit
-            git commit
+            echo "I have done all I could for you. Please perform a 'git commit' with your weapon of choice!"
         ;;
         *)
             echo -e "USAGE: lando commit"
