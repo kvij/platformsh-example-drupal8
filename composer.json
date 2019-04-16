@@ -27,9 +27,6 @@
         "drupal/console": "~1.0"
     },
     "require-dev": {
-        "drupal/coder" : "~3.0",
-        "overtrue/phplint": "^0.2.4",
-        "phpunit/phpunit": "~4.8"
     },
     "minimum-stability": "dev",
     "prefer-stable": true,
