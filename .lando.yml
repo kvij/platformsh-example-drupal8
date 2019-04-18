@@ -51,8 +51,6 @@ services:
 # Ensure `composer install` also happens every time you start your site
 # Ensure generated files are removed from cache before database is exported
 events:
-  post-db-import:
-    - appserver: "cd /app && composer install"
   pre-db-export:
     - appserver: "cd /app && drush cache-rebuild"
 
