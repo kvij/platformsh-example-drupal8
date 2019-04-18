@@ -36,12 +36,8 @@ services:
     build:
       - "cd /tmp && curl -sS https://platform.sh/cli/installer | php || true" # FIXME: Check forced success is still nessesary.
       - "composer global require hirak/prestissimo"
-      - "cd $LANDO_MOUNT && composer install"
-      - "cd $LANDO_MOUNT && scripts/ewise/conditional_import.sh"
-    overrides:
-      services:
-        environment:
-          BEHAT_PARAMS: '{"extensions" : {"Behat\\MinkExtension" : {"base_url" : "http://nginx/"}, "Drupal\\DrupalExtension" : {"drush" :   {  "root":  "/app/web" }}}}'
+      - "cd /app && composer install"
+      - "cd /app && scripts/ewise/conditional_import.sh"
 
   # Portforward can be set to a specific port for a subprocject
   database:
@@ -56,9 +52,9 @@ services:
 # Ensure generated files are removed from cache before database is exported
 events:
   post-db-import:
-    - appserver: "cd $LANDO_MOUNT && composer install"
+    - appserver: "cd /app && composer install"
   pre-db-export:
-    - appserver: "cd $LANDO_MOUNT && drush cache-rebuild"
+    - appserver: "cd /app && drush cache-rebuild"
 
 # The following entry creates a `lando platform` command that will run
 # any Platform CLI command from inside the container if desired.
