@@ -36,7 +36,7 @@ services:
     build:
       - "cd /tmp && curl -sS https://platform.sh/cli/installer | php || true" # FIXME: Check forced success is still nessesary.
       - "composer global require hirak/prestissimo"
-      - "cd /app && composer install"
+    run:
       - "cd /app && scripts/ewise/conditional_import.sh"
 
   # Portforward can be set to a specific port for a subprocject
