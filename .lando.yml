@@ -67,10 +67,6 @@ tooling:
     service: appserver
     description: Applies (often git) changes on disk to site. The force parameter enshures the environment reflects the last commit.
     cmd: cp -a /app/scripts/ewise/development_cleanup.sh /tmp && /tmp/development_cleanup.sh
-  "apply-unix [force]":
-    service: appserver
-    description: Same as 'lando apply' but without Windows trickery that does not work here.
-    cmd: /app/scripts/ewise/development_cleanup.sh
   commit:
     service: appserver
     description: Uniform way to commit all your site changes
@@ -79,17 +75,3 @@ tooling:
     service: appserver
     description: Run Platform CLI commands
     cmd: /var/www/.platformsh/bin/platform
-  phplint:
-    service: appserver
-    cmd: /app/vendor/bin/phplint
-  phpcs:
-    service: appserver
-    cmd: /app/vendor/bin/phpcs
-  phpunit:
-    service: appserver
-    cmd: /app/vendor/bin/phpunit
-  behat:
-    service: appserver
-    cmd: /app/vendor/bin/behat
-  # git:
-  #   service: appserver
