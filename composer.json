@@ -71,5 +71,8 @@
     },
     "replace": {
         "drupal/drupal": "*"
+    },
+    "config": {
+        "process-timeout": 2000
     }
 }
