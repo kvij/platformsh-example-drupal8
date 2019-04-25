@@ -89,8 +89,6 @@ function update_database {
 
     logf '\n### Do database updates ###\n'
     logt drush updatedb -y
-    logf '\n### Apply entity updates ###\n'
-    logt drush entup -y
 }
 
 function import_config {

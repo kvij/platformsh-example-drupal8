@@ -70,7 +70,6 @@ function commonBuildTasks {
 	drush pm:list --status=enabled --type=module --no-core --fields=name | grep -q 'config_split' \
 	    || drush -y config-import
 	drush -y config-import
-	drush -y entup
     if drush pm:list --status=enabled --type=module --no-core --fields=name | grep -q 'default_content_deploy'
     then
         drush -y default-content-deploy:import --force-update
