@@ -5,19 +5,19 @@ steps:
   env:
   - 'PROJECT_ID=$PROJECT_ID'
   - 'REPO_NAME=$REPO_NAME'
-  - 'ENVIRONMENT=testing'
-  - 'BRANCH_NAME=$BRANCH_NAME'
+  - 'ENVIRONMENT=$_ENVIRONMENT'
+  - 'BRANCH_NAME=$BRANCH_NAME'  #We don't get an branch_name with tag-trigger
   - 'SHORT_SHA=$SHORT_SHA'
-  - 'TAG_NAME=$SHORT_SHA'  # We don't get an tag_name with commit-trigger
+  - 'TAG_NAME=$TAG_NAME'        #We don't get a tag_name with branch-trigger
   - 'COMMIT_SHA=$COMMIT_SHA'
-  - 'REPLICAS=1'
+  - 'REPLICAS=$_REPLICAS'
 
 - name: 'gcr.io/cloud-builders/docker'
-  args: ['build', '-t', 'eu.gcr.io/$PROJECT_ID/$REPO_NAME/testing:latest', '--build-arg', 'BASE_IMAGE_TAG=7.2', '.']
+  args: ['build', '-t', 'eu.gcr.io/$PROJECT_ID/$REPO_NAME/$_ENVIRONMENT:latest', '--build-arg', 'BASE_IMAGE_TAG=7.2', '.']
   timeout: 500s
 
 - name: 'gcr.io/cloud-builders/docker'
-  args: ['push', 'eu.gcr.io/$PROJECT_ID/$REPO_NAME/testing:latest']
+  args: ['push', 'eu.gcr.io/$PROJECT_ID/$REPO_NAME/$_ENVIRONMENT:latest']
 
 - name: 'gcr.io/cloud-builders/kubectl'
   args: ['apply', '-f', './gke/deploy-app.yaml', '--overwrite=true', '--record']
@@ -26,5 +26,5 @@ steps:
   - 'CLOUDSDK_CONTAINER_CLUSTER=cluster-prod'
 
 timeout: 660s
-tags: ['${REPO_NAME}testing']
-images: ['eu.gcr.io/$PROJECT_ID/$REPO_NAME/testing:latest']
+tags: ['${REPO_NAME}$_ENVIRONMENT']
+images: ['eu.gcr.io/$PROJECT_ID/$REPO_NAME/$_ENVIRONMENT:latest']
