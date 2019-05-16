@@ -135,7 +135,11 @@ spec:
               memory: "10Mi"
           env:
           - name: TX_SMTP_RELAY_HOST
+{% if ENVIRONMENT == 'prod' %}
             value: "[in-v3.mailjet.com]:587"
+{% else %}
+            value: "[mailhog.default.svc.cluster.local]:1025"
+{% endif %}
           - name: TX_SMTP_RELAY_MYHOSTNAME
             value: "smtp-relay.e-wise.io"
           - name: TX_SMTP_RELAY_USERNAME
