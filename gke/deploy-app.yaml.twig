@@ -127,23 +127,23 @@ spec:
             mountPath: /etc/ssl/certs
 
         # [smtpd_relay_container]
-        - image: wodby/opensmtpd:6-1.4.0
+        - image: applariat/tx-smtp-relay:latest
           name: smtp
           resources:
             requests:
               cpu: "20m"
               memory: "10Mi"
           env:
-          - name: RELAY_HOST
-            value: in-v3.mailjet.com
-          - name: RELAY_PORT
-            value: "587"
-          - name: RELAY_USER
+          - name: TX_SMTP_RELAY_HOST
+            value: "[in-v3.mailjet.com]:587"
+          - name: TX_SMTP_RELAY_MYHOSTNAME
+            value: "smtp-relay.e-wise.io"
+          - name: TX_SMTP_RELAY_USERNAME
             valueFrom:
               secretKeyRef:
                 name: smtpd-credentials
                 key: username
-          - name: RELAY_PASSWORD
+          - name: TX_SMTP_RELAY_PASSWORD
             valueFrom:
               secretKeyRef:
                 name: smtpd-credentials
