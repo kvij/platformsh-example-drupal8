@@ -17,7 +17,7 @@ function main {
 
     fetchFiles
     importDB
-    importLocalConfig
+    applyLocalConfig
 
     echo "*** All done, enjoy the $ENVIRONMENT content ***"
 }
@@ -40,7 +40,10 @@ function importDB {
     gunzip -c private/backup_migrate/backup.mysql.gz | mysql --host=database --user=drupal8 --password=drupal8 drupal8
 }
 
-function importLocalConfig {
+function applyLocalConfig {
+    echo '*** Perform database updates for locally updated modules ***'
+    drush updatedb --yes
+
     echo '*** Import development configuration ***'
     drush config:import --yes
 }
