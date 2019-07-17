@@ -1,0 +1,15 @@
+## Configuration for lando content-import
+
+## Project name as on remote (note that $LANDO_APP_PROJECT omits dashes)
+#PROJECT="$LANDO_APP_PROJECT"
+
+## Environment name to fetch files from
+#ENVIRONMENT="staging"
+
+## Defaults unlikely to change
+
+## rsync-ssh user
+#USER="replicator"
+
+#HOST="rsync.e-wise.io"
+#NFS_DIR="/mnt"

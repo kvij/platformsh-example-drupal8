@@ -69,3 +69,7 @@ tooling:
     service: appserver
     description: Run Platform CLI commands
     cmd: /var/www/.platformsh/bin/platform
+  content-import:
+    service: appserver
+    description: Pull (replace current) content from a remote site
+    cmd: /app/scripts/ewise/content_import.sh
