@@ -7,7 +7,7 @@ cd $LANDO_MOUNT
 
 USER=${USER:-"replicator"}
 HOST=${HOST:-"rsync.e-wise.io"}
-NFS_DIR=${NFS_DIR:-"/mnt"}
+NFS_DIR=${NFS_DIR:-"/mnt/nfs-ro"}
 PROJECT=${PROJECT:-"$LANDO_APP_PROJECT"}
 ENVIRONMENT=${ENVIRONMENT:-"staging"}
 

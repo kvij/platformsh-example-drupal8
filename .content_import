@@ -12,4 +12,4 @@
 #USER="replicator"
 
 #HOST="rsync.e-wise.io"
-#NFS_DIR="/mnt"
+#NFS_DIR="/mnt/nfs-ro"
