@@ -21,6 +21,7 @@ function main {
     install_dependencies
     install_health_check
     if [[ -n "$SITE_UPDATER" ]]; then
+        clear_cache
         update_database
         import_config
         import_content
@@ -89,6 +90,11 @@ function update_database {
 
     logf '\n### Do database updates ###\n'
     logt drush updatedb -y
+}
+
+function clear_cache {
+    logf '\n### Clear cache ###\n'
+    logt drush -y cache-rebuild
 }
 
 function import_config {
