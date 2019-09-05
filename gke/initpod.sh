@@ -4,7 +4,6 @@ set -eEo pipefail
 APP_SRC='/usr/src/app'
 APP_ROOT='/var/www/html'
 LOG_FILE="$APP_ROOT/initpod.log"
-STATE_FILE="$APP_ROOT/private/tmp$SHORT_SHA.state"
 
 # Abort when something goes wrong
 trap abort ERR
@@ -120,10 +119,18 @@ function import_content {
 }
 
 function updater_lock {
-    if [[ ! -f "$STATE_FILE" ]] || grep -q 'FAILED' "$STATE_FILE"; then
-        rm -f "$(dirname "$STATE_FILE")/"*".state" # Remove older statefiles
-        mkdir -p "$(dirname "$STATE_FILE")"
-        truncate -s 0 "$STATE_FILE"
+    log '### prepare table ###'
+    loge mysql --host="$DB_HOST" --user="$DB_USER" --password="$DB_PASSWORD" -e 'USE `'"$DB_NAME"'`; CREATE TABLE IF NOT EXISTS `_gke_init` (`id` int(10) unsigned NOT NULL AUTO_INCREMENT, `commit` varchar(50) NOT NULL, `state` varchar(50) DEFAULT NULL, `timestamp` datetime DEFAULT NULL, UNIQUE(`commit`), PRIMARY KEY (`id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8;'
+
+    log '### Test for already existing site updating pod or become one ###'
+    if mysql --host="$DB_HOST" --user="$DB_USER" --password="$DB_PASSWORD" -e 'USE `'"$DB_NAME"'`; INSERT INTO `_gke_init`	VALUES (0,"'"$SHORT_SHA"'","UPDATING", NOW())' 2>/dev/null
+    then
+        SITE_UPDATER='TRUE'
+        log "#### Additional Drupal update tasks will be performed ####"
+
+    # Check for previous failed state
+    elif mysql -sN --host="$DB_HOST" --user="$DB_USER" --password="$DB_PASSWORD" -e 'USE `'"$DB_NAME"'`; SELECT `state` FROM `_gke_init` WHERE commit = "'"$SHORT_SHA"'"' | grep -q 'FAILED'
+    then
         SITE_UPDATER='TRUE'
         log "#### Additional Drupal update tasks will be performed ####"
     else
@@ -134,7 +141,7 @@ function updater_lock {
 # Wait until Drupal update tasks are done
 function updater_wait {
     [[ -n "$SITE_UPDATER" ]] && return # Updater does must not wait on itself
-    while grep -qv SUCCESS "$STATE_FILE"
+    while mysql -sN --host="$DB_HOST" --user="$DB_USER" --password="$DB_PASSWORD" -e 'USE `'"$DB_NAME"'`; SELECT `state` FROM `_gke_init` WHERE commit = "'"$SHORT_SHA"'"' | grep -qv 'SUCCESS'
     do
         sleep 2
     done
@@ -145,7 +152,7 @@ function unlock {
     mv web/index.wait web/index.php
     if [[ -n "$SITE_UPDATER" ]]; then
         logf '\n### Website update tasks done - let other new pods know they can start serving ###\n';
-        echo 'SUCCESS' > "$STATE_FILE"
+        mysql --host="$DB_HOST" --user="$DB_USER" --password="$DB_PASSWORD" -e 'USE `'"$DB_NAME"'`; UPDATE `_gke_init` SET `state` = "SUCCESS" WHERE commit = "'"$SHORT_SHA"'"'
     fi
     log 'Starting cron daemon'
     sudo -E /usr/sbin/crond
@@ -155,7 +162,7 @@ function unlock {
 
 function abort {
     trap - EXIT
-    echo 'FAILED' > "$STATE_FILE"
+    mysql --host="$DB_HOST" --user="$DB_USER" --password="$DB_PASSWORD" -e 'USE `'"$DB_NAME"'`; UPDATE `_gke_init` SET `state` = "FAILED" WHERE commit = "'"$SHORT_SHA"'"'
     log "Aborting..."
     send_log
     exit 0
