@@ -85,6 +85,7 @@ function update_database {
         logf '\n### Importing default.sql.gz ###\n'
         loge mysql --host="$DB_HOST" --user="$DB_USER" --password="$DB_PASSWORD" -e 'DROP DATABASE IF EXISTS `'"$DB_NAME"'`; CREATE DATABASE `'"$DB_NAME"'`;'
         gunzip -c "$APP_SRC/default.sql.gz" | mysql --host="$DB_HOST" --user="$DB_USER" --password="$DB_PASSWORD" "$DB_NAME" 2>&1 | tee -a "$LOG_FILE"
+	updater_lock
     fi
 
     logf '\n### Do database updates ###\n'
