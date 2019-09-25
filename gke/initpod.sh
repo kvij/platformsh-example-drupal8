@@ -131,8 +131,8 @@ function updater_lock {
     # Check for previous failed state
     elif mysql -sN --host="$DB_HOST" --user="$DB_USER" --password="$DB_PASSWORD" -e 'USE `'"$DB_NAME"'`; SELECT `state` FROM `_gke_init` WHERE commit = "'"$SHORT_SHA"'"' | grep -q 'FAILED'
     then
-        SITE_UPDATER='TRUE'
-        log "#### Additional Drupal update tasks will be performed ####"
+        loge mysql --host="$DB_HOST" --user="$DB_USER" --password="$DB_PASSWORD" -e 'USE `'"$DB_NAME"'`; DELETE FROM `_gke_init` WHERE commit = "'"$SHORT_SHA"'" AND `state` = "FAILED"'
+        updater_lock
     else
         log "Skipping already started update tasks"
     fi
