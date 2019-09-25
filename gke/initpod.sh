@@ -85,7 +85,7 @@ function update_database {
         logf '\n### Importing default.sql.gz ###\n'
         loge mysql --host="$DB_HOST" --user="$DB_USER" --password="$DB_PASSWORD" -e 'DROP DATABASE IF EXISTS `'"$DB_NAME"'`; CREATE DATABASE `'"$DB_NAME"'`;'
         gunzip -c "$APP_SRC/default.sql.gz" | mysql --host="$DB_HOST" --user="$DB_USER" --password="$DB_PASSWORD" "$DB_NAME" 2>&1 | tee -a "$LOG_FILE"
-	updater_lock
+        updater_lock
     fi
 
     logf '\n### Do database updates ###\n'
@@ -120,7 +120,6 @@ function import_content {
 }
 
 function updater_lock {
-    log '### prepare table ###'
     loge mysql --host="$DB_HOST" --user="$DB_USER" --password="$DB_PASSWORD" -e 'USE `'"$DB_NAME"'`; CREATE TABLE IF NOT EXISTS `_gke_init` (`id` int(10) unsigned NOT NULL AUTO_INCREMENT, `commit` varchar(50) NOT NULL, `state` varchar(50) DEFAULT NULL, `timestamp` datetime DEFAULT NULL, UNIQUE(`commit`), PRIMARY KEY (`id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8;'
 
     log '### Test for already existing site updating pod or become one ###'
