@@ -39,4 +39,9 @@ if (getenv('KUBER')) {
     $settings['container_yamls'][] = $app_root . '/' . $site_path . '/development.services.yml';
     $config['config_split.config_split.development']['status'] = TRUE;
   }
+
+  // Enable specific production config when appropriate
+  if (getenv('ENVIRONMENT') === 'prod') {
+    $config['config_split.config_split.production']['status'] = TRUE;
+  }
 }
