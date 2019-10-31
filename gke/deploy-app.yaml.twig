@@ -46,27 +46,6 @@ spec:
             requests:
               cpu: "20m"
               memory: "30Mi"
-          readinessProbe:  # Check when`the pod is ready and then replace existing pods
-            httpGet:
-              path: /health?readiness
-              port: 80
-              httpHeaders:
-              - name: Host
-                value: healthcheck
-            initialDelaySeconds: 1
-            periodSeconds: 30
-            timeoutSeconds: 2
-          livenessProbe:  # Check if pod needs to be killed and restarted
-            httpGet:
-              path: /health?liveness
-              port: 80
-              httpHeaders:
-              - name: Host
-                value: healthcheck
-            initialDelaySeconds: 15
-            periodSeconds: 30
-            timeoutSeconds: 2
-            failureThreshold: 2
           env:
           - name: NGINX_VHOST_PRESET
             value: "drupal8"
@@ -161,6 +140,27 @@ spec:
             requests:
               cpu: "50m"
               memory: "512Mi"
+          readinessProbe:  # Check when`the pod is ready and then replace existing pods
+            httpGet:
+              path: /health?readiness
+              port: 80
+              httpHeaders:
+              - name: Host
+                value: healthcheck
+            initialDelaySeconds: 1
+            periodSeconds: 30
+            timeoutSeconds: 2
+          livenessProbe:  # Check if pod needs to be killed and restarted
+            httpGet:
+              path: /health?liveness
+              port: 80
+              httpHeaders:
+              - name: Host
+                value: healthcheck
+            initialDelaySeconds: 15
+            periodSeconds: 30
+            timeoutSeconds: 2
+            failureThreshold: 2
           env:
           - name: PROJECT_ID
             value: "{{PROJECT_ID}}"
