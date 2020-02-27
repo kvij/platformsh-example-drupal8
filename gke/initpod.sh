@@ -23,7 +23,6 @@ function main {
         clear_cache
         update_database
         import_config
-        import_content
     fi
     updater_wait
 }
@@ -105,18 +104,6 @@ function import_config {
     logt drush config:import -y
     logf '\n### Enable health_check ###\n'
     logt drush pm-enable health_check -y
-}
-
-function import_content {
-    # Guard against accidental test content imports
-    if [[ -n "$DEVELOPMENT_ENVIRONMENT" ]]
-    then
-        if drush pm:list --status=enabled --type=module --no-core --fields=name | grep -q 'default_content_deploy'
-        then
-            logf '\n### Importing content ###\n'
-            logt drush default-content-deploy:import --force-update -y
-        fi
-    fi
 }
 
 function updater_lock {

@@ -8,13 +8,6 @@ function main {
             areYouShure "Do you want to export the configuration" y false && \
                 drush -y config-export
 
-            if drush pm:list --status=enabled --type=module --no-core --fields=name | grep -q 'default_content_deploy'
-            then
-                areYouShure "Do you want to export the content" y false && \
-                    drush -y default-content-deploy:export-site --skip_entity_type oauth2_token,consumer,node && \
-                    drush -y default-content-deploy:export node --skip_elements=nid,vid
-            fi
-
             areYouShure "Do you want update default.sql.gz? When unsure the answer is no" n false && \
                 mysqldump --host=database --user=drupal8 --password=drupal8 drupal8 | gzip > default.sql.gz
 
