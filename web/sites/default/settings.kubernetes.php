@@ -43,5 +43,6 @@ if (getenv('KUBER')) {
   // Enable specific production config when appropriate
   if (getenv('ENVIRONMENT') === 'prod') {
     $config['config_split.config_split.production']['status'] = TRUE;
+    $config['keycdn.settings.d05546f041']['api_key'] = getenv('KEYCDN_API_KEY');
   }
 }
