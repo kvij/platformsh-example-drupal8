@@ -22,6 +22,10 @@ web/modules/contrib
 web/themes/contrib
 web/profiles/contrib
 
+# Automated drupal-scafolding ignores
+.editorconfig
+.gitattributes
+
 # Ignore Drupal's file directory
 ## web/sites/*/files
 
