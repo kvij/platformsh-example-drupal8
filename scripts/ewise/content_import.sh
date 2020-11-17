@@ -29,7 +29,7 @@ function fetchFiles {
     echo '*** Updating private files ***'
     rsync $options "$source/private/" private/
     echo '*** Updating public files ***'
-    rsync $options "$source/files/" web/sites/default/files/
+    rsync $options --exclude='advagg_*' "$source/files/" web/sites/default/files/
 }
 
 function importDB {
