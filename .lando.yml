@@ -14,7 +14,7 @@ config:
   webroot: web
 
   # Set this to match the version in your .platform.app.yaml.
-  php: 7.2
+  php: 7.4
 
   # Set composer version.
   composer_version: '1.10.1'

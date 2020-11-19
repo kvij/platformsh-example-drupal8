@@ -13,7 +13,7 @@ steps:
   - 'REPLICAS=$_REPLICAS'
 
 - name: 'gcr.io/cloud-builders/docker'
-  args: ['build', '-t', 'eu.gcr.io/$PROJECT_ID/$REPO_NAME/$_ENVIRONMENT:latest', '--build-arg', 'BASE_IMAGE_TAG=7.2', '.']
+  args: ['build', '-t', 'eu.gcr.io/$PROJECT_ID/$REPO_NAME/$_ENVIRONMENT:latest', '--build-arg', 'BASE_IMAGE_TAG=7.4', '.']
   timeout: 500s
 
 - name: 'gcr.io/cloud-builders/docker'
