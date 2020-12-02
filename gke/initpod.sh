@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 
 set -eEo pipefail
-APP_SRC='/usr/src/app'
-APP_ROOT='/var/www/html'
-LOG_FILE="$APP_ROOT/initpod.log"
+APP_ROOT='/app'
+WEB_ROOT='/var/www/html'
+LOG_FILE="/tmp/initpod.log"
 
 # Abort when something goes wrong
 trap abort ERR
@@ -48,13 +48,11 @@ function detect_environment {
 # Copy source to ephemeral storage
 function prepare_src {
     log "### Copying repo content to $APP_ROOT ###"
+    logt rsync -qr --exclude-from="$APP_SRC/gke/rsync-prod.exclude" "$APP_SRC/" "$APP_ROOT"
     if [[ -n "$DEVELOPMENT_ENVIRONMENT" ]]
     then
         logt cp -r "$APP_SRC/." "$APP_ROOT"
-    else
-        logt rsync -qr --exclude-from="$APP_SRC/gke/rsync-prod.exclude" "$APP_SRC/" "$APP_ROOT"
     fi
-    mv 'web/index.php' 'web/index.wait'  # Be unhealthy until site update tasks are completed
 }
 
 function install_dependencies {
