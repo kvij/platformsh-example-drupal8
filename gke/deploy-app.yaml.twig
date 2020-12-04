@@ -207,7 +207,7 @@ spec:
             requests:
               cpu: "50m"
               memory: "512Mi"
-            # Check when`the pod is ready and then replace existing pods
+          readinessProbe:  # Check when`the pod is ready and then replace existing pods
             httpGet:
               path: /health?readiness
               port: 80
