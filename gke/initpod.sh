@@ -17,8 +17,6 @@ function main {
     detect_environment
     updater_lock
     prepare_src
-    install_dependencies
-    install_health_check
     if [[ -n "$SITE_UPDATER" ]]; then
         clear_cache
         update_database
@@ -45,35 +43,17 @@ function detect_environment {
     fi
 }
 
-# Copy source to ephemeral storage
+# Copy web files to ephemeral storage
 function prepare_src {
-    log "### Copying repo content to $APP_ROOT ###"
-    logt rsync -qr --exclude-from="$APP_SRC/gke/rsync-prod.exclude" "$APP_SRC/" "$APP_ROOT"
+    log "### Copying repo content to $WEB_ROOT ###"
+    cp 'gke/nginx.conf' "$WEB_ROOT"
+    logt rsync -qr --prune-empty-dirs --chown=wodby:wodby --include-from="gke/rsync-web.include" --exclude='*' "web" "$WEB_ROOT/"
+    #FIXME: copy test files and private.
+    #FIXME: copy key dir and set permissions
     if [[ -n "$DEVELOPMENT_ENVIRONMENT" ]]
     then
         logt cp -r "$APP_SRC/." "$APP_ROOT"
     fi
-}
-
-function install_dependencies {
-    if [[ -n "$DEVELOPMENT_ENVIRONMENT" ]]
-    then
-        logf '\n###  composer install ###\n';
-        logt composer install --no-progress --optimize-autoloader
-    else
-        logf '\n###  composer install --no-dev  ###\n';
-        logt composer install --no-dev --no-progress --optimize-autoloader
-    fi
-}
-
-function install_health_check {
-    logf '\n### Install and patch health check module ###\n'
-    if ! grep -q '"drupal/health_check"' "$APP_ROOT/composer.json"
-    then
-        logt composer require  'drupal/health_check:^1.0' --no-progress --optimize-autoloader
-    fi
-    # Small hack - add info the health output so we can see which specific POD is answering
-    sed -i "s/response->setContent(time());/response->setContent(time() . ' TAG: ' . getenv('TAG') . ' HOSTNAME: ' . getenv('HOSTNAME'));/g" web/modules/contrib/health_check/src/Controller/HealthController.php
 }
 
 function update_database {
@@ -81,7 +61,7 @@ function update_database {
     then
         logf '\n### Importing default.sql.gz ###\n'
         loge mysql --host="$DB_HOST" --user="$DB_USER" --password="$DB_PASSWORD" -e 'DROP DATABASE IF EXISTS `'"$DB_NAME"'`; CREATE DATABASE `'"$DB_NAME"'`;'
-        gunzip -c "$APP_SRC/default.sql.gz" | mysql --host="$DB_HOST" --user="$DB_USER" --password="$DB_PASSWORD" "$DB_NAME" 2>&1 | tee -a "$LOG_FILE"
+        gunzip -c "default.sql.gz" | mysql --host="$DB_HOST" --user="$DB_USER" --password="$DB_PASSWORD" "$DB_NAME" 2>&1 | tee -a "$LOG_FILE"
         updater_lock
     fi
 
@@ -134,13 +114,10 @@ function updater_wait {
 
 function unlock {
     touch private/cron.done
-    mv web/index.wait web/index.php
     if [[ -n "$SITE_UPDATER" ]]; then
         logf '\n### Website update tasks done - let other new pods know they can start serving ###\n';
         mysql --host="$DB_HOST" --user="$DB_USER" --password="$DB_PASSWORD" -e 'USE `'"$DB_NAME"'`; UPDATE `_gke_init` SET `state` = "SUCCESS" WHERE commit = "'"$SHORT_SHA"'"'
     fi
-    log 'Starting cron daemon'
-    sudo -E /usr/sbin/crond
     loge date
     send_log
 }
@@ -150,7 +127,7 @@ function abort {
     mysql --host="$DB_HOST" --user="$DB_USER" --password="$DB_PASSWORD" -e 'USE `'"$DB_NAME"'`; UPDATE `_gke_init` SET `state` = "FAILED" WHERE commit = "'"$SHORT_SHA"'"'
     log "Aborting..."
     send_log
-    exit 0
+    exit 1
 }
 
 # Log to STDOUT and a logfile
