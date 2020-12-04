@@ -1,3 +1,15 @@
 */
 *.jpg
-*.jpg
+*.JPG
+*.jpeg
+*.JPEG
+*.png
+*.PNG
+*.svg
+*.SVG
+*.ico
+*.ICO
+*.css
+*.CSS
+*.js
+*.JS
