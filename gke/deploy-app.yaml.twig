@@ -38,7 +38,7 @@ spec:
             runAsUser: 0
             runAsNonRoot: false
           command:
-            - "/usr/src/app/gke/initpod.sh"
+            - "/app/gke/initpod.sh"
           env: &drupal-env
             - name: PROJECT_ID
               value: "{{PROJECT_ID}}"
