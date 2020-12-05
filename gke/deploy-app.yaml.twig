@@ -29,7 +29,7 @@ spec:
             topologyKey: "kubernetes.io/hostname"
       initContainers:
         - image: "eu.gcr.io/{{PROJECT_ID}}/{{REPO_NAME}}/{{ENVIRONMENT}}:latest"
-          name: drupal
+          name: drupal-init
           resources:
             requests:
               cpu: "50m"

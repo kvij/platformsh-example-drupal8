@@ -6,7 +6,6 @@ export COMPOSER_MEMORY_LIMIT=-1
 function main {
     install_dependencies
     install_health_check
-    move_test_resources
 }
 
 function install_dependencies {
@@ -20,11 +19,6 @@ function install_health_check {
     fi
     # Small hack - add info the health output so we can see which specific POD is answering
     sed -i "s/response->setContent(time());/response->setContent(time() . ' TAG: ' . getenv('TAG') . ' HOSTNAME: ' . getenv('HOSTNAME'));/g" web/modules/contrib/health_check/src/Controller/HealthController.php
-}
-
-function move_test_resources {
-    mkdir -p "tests/resources"
-    mv "private" "web/sites/default/files" "tests/resources"
 }
 
 main "$@"
