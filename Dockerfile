@@ -11,7 +11,8 @@ RUN crontab -l | { cat; echo "*/15       *       *       *       *       /app/gk
 
 USER wodby
 WORKDIR /app
-COPY composer.* scripts patches /app/
+COPY scripts/composer /app/scripts/composer/
+COPY patches /app/patches/
+COPY composer.* /app/
 RUN gke/buildscript.sh
 COPY . /app/
-RUN composer dump-autoload --no-scripts --optimize
