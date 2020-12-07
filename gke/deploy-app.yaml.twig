@@ -104,8 +104,13 @@ spec:
                   name: slack-bot-token
                   key: token
           volumeMounts:
-            - name: cloudsql
-              mountPath: /cloudsql
+            - mountPath: /cloudsql
+              name: cloudsql
+            - mountPath: /secrets/cloudsql
+              name: cloudsql-instance-credentials
+              readOnly: true
+            - mountPath: /etc/ssl/certs
+              name: ssl-certs
             - mountPath: /var/www/html/
               name: pod-share
       containers:
