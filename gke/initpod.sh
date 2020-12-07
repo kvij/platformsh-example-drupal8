@@ -10,9 +10,8 @@ trap abort ERR
 # Unlock other pods and start serving on normal exit
 trap unlock EXIT
 
-cd "$APP_ROOT"
-
 function main {
+    cd "$APP_ROOT"
     cloud_sql_proxy
     print_header
     detect_environment
@@ -38,7 +37,7 @@ function print_header {
 
 function cloud_sql_proxy {
     /cloud_sql_proxy -dir=/cloudsql -verbose=false -instances="kuberdrupal:europe-west4:cloudmysql=tcp:3306" \
-        -credential_file="/secrets/cloudsql/credentials.json" &;
+        -credential_file="/secrets/cloudsql/credentials.json" &
 }
 
 # Set up additional environment info
