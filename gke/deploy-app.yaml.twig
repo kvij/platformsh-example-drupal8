@@ -142,6 +142,8 @@ spec:
           ports:
           - containerPort: 80
           volumeMounts:
+          - name: cloudsql
+            mountPath: /cloudsql
           - mountPath: /var/www/html
             name: pod-share
             readOnly: true
@@ -265,4 +267,4 @@ spec:
           hostPath:
             path: /etc/ssl/certs
         - name: cloudsql
-          emptyDir:
+          emptyDir: {}

@@ -13,6 +13,7 @@ trap unlock EXIT
 cd "$APP_ROOT"
 
 function main {
+    cloud_sql_proxy
     print_header
     detect_environment
     updater_lock
@@ -33,6 +34,11 @@ function print_header {
     logf "Variables: \n"
     logf " # REPO_NAME=%s\n # ENVIRONMENT=%s\n # BRANCH_NAME=%s\n" "$REPO_NAME" "$ENVIRONMENT" "$BRANCH_NAME"
     logf " # REPLICAS=%s\n # COMMIT_ID=%s\n # TAG=%s\n" "$REPLICAS" "$SHORT_SHA" "$TAG_NAME"
+}
+
+function cloud_sql_proxy {
+    /cloud_sql_proxy -dir=/cloudsql -verbose=false -instances="kuberdrupal:europe-west4:cloudmysql=tcp:3306" \
+        -credential_file="/secrets/cloudsql/credentials.json" &;
 }
 
 # Set up additional environment info
