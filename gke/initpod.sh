@@ -18,7 +18,7 @@ function main {
     updater_lock
     prepare_src
     if [[ -n "$SITE_UPDATER" ]]; then
-        clear_cache
+        #clear_cache
         update_database
         import_config
     fi
@@ -27,7 +27,6 @@ function main {
 
 function print_header {
     loge date
-    loge whoami
     logf '\n*************** COMMIT MESSAGE **************\n'
     log  "$COMMITMSG"
     logf '*********************************************\n'
