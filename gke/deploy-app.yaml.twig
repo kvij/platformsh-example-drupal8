@@ -215,14 +215,10 @@ spec:
               cpu: "50m"
               memory: "512Mi"
           readinessProbe:  # Check when`the pod is ready and then replace existing pods
-            httpGet:
-              path: /health?readiness
-              port: 80
-              httpHeaders:
-              - name: Host
-                value: healthcheck
-            initialDelaySeconds: 1
-            periodSeconds: 30
+            tcpSocket:
+              port: 9000
+            initialDelaySeconds: 2
+            periodSeconds: 5
             timeoutSeconds: 2
           livenessProbe:  # Check if pod needs to be killed and restarted
             httpGet:
@@ -231,7 +227,7 @@ spec:
               httpHeaders:
               - name: Host
                 value: healthcheck
-            initialDelaySeconds: 1
+            initialDelaySeconds: 15
             periodSeconds: 30
             timeoutSeconds: 2
             failureThreshold: 2
