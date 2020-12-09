@@ -42,7 +42,7 @@ function cloud_sql_proxy {
 
     while ! nc -z -w1 localhost 3306; do
       sleep 0.2
-    cone
+    done
 }
 
 # Set up additional environment info
