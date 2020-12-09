@@ -13,7 +13,16 @@ steps:
   - 'REPLICAS=$_REPLICAS'
 
 - name: 'gcr.io/cloud-builders/docker'
-  args: ['build', '-t', 'eu.gcr.io/$PROJECT_ID/$REPO_NAME/$_ENVIRONMENT:latest', '--build-arg', 'BASE_IMAGE_TAG=7.2', '.']
+  entrypoint: 'bash'
+  args: ['-c', 'docker pull eu.gcr.io/$PROJECT_ID/$REPO_NAME/$_ENVIRONMENT:latest || exit 0']
+
+- name: 'gcr.io/cloud-builders/docker'
+  args: [
+    'build', '--build-arg', 'BASE_IMAGE_TAG=7.2',
+    '-t', 'eu.gcr.io/$PROJECT_ID/$REPO_NAME/$_ENVIRONMENT:latest',
+    '--cache-from', 'eu.gcr.io/$PROJECT_ID/$REPO_NAME/$_ENVIRONMENT:latest',
+    '.'
+  ]
   timeout: 500s
 
 - name: 'gcr.io/cloud-builders/docker'
