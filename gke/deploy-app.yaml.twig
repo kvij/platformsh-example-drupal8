@@ -109,8 +109,6 @@ spec:
             - mountPath: /secrets/cloudsql
               name: cloudsql-instance-credentials
               readOnly: true
-            - mountPath: /etc/ssl/certs
-              name: ssl-certs
             - mountPath: /mnt/share
               name: pod-share
       containers:
@@ -180,8 +178,6 @@ spec:
             readOnly: true
           - name: cloudsql
             mountPath: /cloudsql
-          - name: ssl-certs
-            mountPath: /etc/ssl/certs
 
         # [smtpd_relay_container]
         - image: applariat/tx-smtp-relay:latest
@@ -276,8 +272,5 @@ spec:
         - name: "cloudsql-db-{{REPO_NAME_SHORT}}"
           secret:
             secretName: "cloudsql-db-{{REPO_NAME_SHORT}}"
-        - name: ssl-certs
-          hostPath:
-            path: /etc/ssl/certs
         - name: cloudsql
           emptyDir: {}
