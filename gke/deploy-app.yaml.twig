@@ -260,8 +260,7 @@ spec:
           lifecycle:
             postStart:
               exec:
-                command:
-                  - "sudo -E /usr/sbin/crond"
+                command: ["/bin/sh", "-c", "sudo -E /usr/sbin/crond" ]
 
       volumes:
         - name: pod-share
