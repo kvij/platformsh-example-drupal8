@@ -253,6 +253,13 @@ spec:
             name: pod-share
             subPath: private
 {% endif %}
+          #Debug
+          - mountPath: /var/www/html
+            name: pod-share
+          - mountPath: /var/www/html/web/sites/default/files
+            name: nfs
+            subPath: "{{REPO_NAME_SHORT}}/{{ENVIRONMENT}}/files"
+            readOnly: true
 
       volumes:
         - name: pod-share
