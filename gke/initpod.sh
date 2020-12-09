@@ -70,7 +70,7 @@ function prepare_src {
     logf "\n### Fix ownership and permissions of $SHARE_ROOT ###\n"
     loge chown -R www-data:www-data $SHARE_ROOT
     loge chmod -R ug+ws "$SHARE_ROOT/web/sites/default/files" "$SHARE_ROOT/private"
-    loge chmod -R go=,u=rwX /var/www/html/keys
+    loge chmod -R go=,u=rwX "$SHARE_ROOT/keys"
 }
 
 function update_database {
