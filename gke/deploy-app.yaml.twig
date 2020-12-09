@@ -257,6 +257,11 @@ spec:
             name: pod-share
             subPath: private
 {% endif %}
+          lifecycle:
+            postStart:
+              exec:
+                command:
+                  - "sudo -E /usr/sbin/crond"
 
       volumes:
         - name: pod-share
