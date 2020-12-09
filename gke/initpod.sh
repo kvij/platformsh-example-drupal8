@@ -55,12 +55,14 @@ function detect_environment {
 # Copy web files to ephemeral storage
 function prepare_src {
     log "### Copying repo content to $SHARE_ROOT ###"
-    mkdir -p  "$SHARE_ROOT/config" "$SHARE_ROOT/web/sites/default/files" "$SHARE_ROOT/private" "$SHARE_ROOT/keys"
+    mkdir -p "web/sites/default/files" \
+        "$SHARE_ROOT/web/sites/default/files" "$SHARE_ROOT/private" "$SHARE_ROOT/config" "$SHARE_ROOT/keys"
     cp 'gke/nginx.conf' "$SHARE_ROOT/config/"
+    mv web/sites/default/files .
     logt rsync -qr --prune-empty-dirs --include-from="gke/rsync-web.include" --exclude='*' "web" "$SHARE_ROOT/"
     if [[ -n "$DEVELOPMENT_ENVIRONMENT" ]]
     then
-        logt cp -r "web/sites/default/files" "$SHARE_ROOT/web/sites/default"
+        logt cp -r "files" "$SHARE_ROOT/web/sites/default"
         logt cp -r "private" "$SHARE_ROOT"
     fi
 
