@@ -136,24 +136,24 @@ spec:
           - name: "NGINX_LOG_FORMAT_SHOW_REAL_IP"
             value: "on"
           - name: NGINX_SERVER_EXTRA_CONF_FILEPATH
-            value: "/var/www/html/nginx.conf"
+            value: "/app/nginx.conf"
           - name: NGINX_UPSTREAM_NAME
             value: "{{REPO_NAME_SHORT}}"
           - name: NGINX_BACKEND_HOST
             value: localhost
           - name: NGINX_SERVER_ROOT
-            value: /var/www/html/web
+            value: /app/web
           - name: NGINX_CLIENT_MAX_BODY_SIZE
             value: "40M"
           name: nginx
           ports:
           - containerPort: 80
           volumeMounts:
-          - mountPath: /var/www/html
+          - mountPath: /app
             name: pod-share
             readOnly: true
 {% if ENVIRONMENT == 'prod' or ENVIRONMENT == 'staging' %}
-          - mountPath: /var/www/html/web/sites/default/files
+          - mountPath: /app/web/sites/default/files
             name: nfs
             subPath: "{{REPO_NAME_SHORT}}/{{ENVIRONMENT}}/files"
             readOnly: true
@@ -253,13 +253,6 @@ spec:
             name: pod-share
             subPath: private
 {% endif %}
-          #Debug
-          - mountPath: /var/www/html
-            name: pod-share
-          - mountPath: /var/www/html/web/sites/default/files
-            name: nfs
-            subPath: "{{REPO_NAME_SHORT}}/{{ENVIRONMENT}}/files"
-            readOnly: true
 
       volumes:
         - name: pod-share
