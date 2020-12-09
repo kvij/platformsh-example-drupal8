@@ -111,7 +111,7 @@ spec:
               readOnly: true
             - mountPath: /etc/ssl/certs
               name: ssl-certs
-            - mountPath: /mnt/share/
+            - mountPath: /mnt/share
               name: pod-share
       containers:
         # [nginx]
@@ -136,7 +136,7 @@ spec:
           - name: "NGINX_LOG_FORMAT_SHOW_REAL_IP"
             value: "on"
           - name: NGINX_SERVER_EXTRA_CONF_FILEPATH
-            value: "/var/www/html/nginx.conf"
+            value: /config/nginx.conf
           - name: NGINX_UPSTREAM_NAME
             value: "{{REPO_NAME_SHORT}}"
           - name: NGINX_BACKEND_HOST
@@ -149,7 +149,11 @@ spec:
           ports:
           - containerPort: 80
           volumeMounts:
-          - mountPath: /var/www/html
+          - mountPath: /config
+            subPath: config
+            name: pod-share
+          - mountPath: /var/www/html/web
+            subPath: web
             name: pod-share
             readOnly: true
 {% if ENVIRONMENT == 'prod' or ENVIRONMENT == 'staging' %}

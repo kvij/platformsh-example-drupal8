@@ -27,6 +27,7 @@ function main {
 
 function print_header {
     loge date
+    loge whoami
     logf '\n*************** COMMIT MESSAGE **************\n'
     log  "$COMMITMSG"
     logf '*********************************************\n'
@@ -39,7 +40,9 @@ function cloud_sql_proxy {
     /cloud_sql_proxy -dir=/cloudsql -verbose=false -instances="kuberdrupal:europe-west4:cloudmysql=tcp:3306" \
         -credential_file="/secrets/cloudsql/credentials.json" &
 
-    sleep 2
+    while ! nc -z -w1 localhost 3306; do
+      sleep 0.2
+    cone
 }
 
 # Set up additional environment info
@@ -53,14 +56,21 @@ function detect_environment {
 # Copy web files to ephemeral storage
 function prepare_src {
     log "### Copying repo content to $SHARE_ROOT ###"
-    cp 'gke/nginx.conf' "$SHARE_ROOT"
-    logt rsync -qr --prune-empty-dirs --chown=wodby:wodby --include-from="gke/rsync-web.include" --exclude='*' "web" "$SHARE_ROOT/"
-    #FIXME: copy test files and private.
-    #FIXME: copy key dir and set permissions
+    mkdir -p  "$SHARE_ROOT/config" "$SHARE_ROOT/web/sites/default/files" "$SHARE_ROOT/private" "$SHARE_ROOT/keys"
+    cp 'gke/nginx.conf' "$SHARE_ROOT/config/"
+    logt rsync -qr --prune-empty-dirs --include-from="gke/rsync-web.include" --exclude='*' "web" "$SHARE_ROOT/"
     if [[ -n "$DEVELOPMENT_ENVIRONMENT" ]]
     then
-        logt cp -r "$APP_SRC/." "$APP_ROOT"
+        logt cp -r "web/sites/default/files" "$SHARE_ROOT/web/sites/default"
+        logt cp -r "private" "$SHARE_ROOT"
     fi
+
+    [[ -e '/etc/secret-mounts/keys' ]] && logt cp -r '/etc/secret-mounts/keys' "$SHARE_ROOT"
+
+    logf "\n### Fix ownership and permissions of $SHARE_ROOT ###\n"
+    loge chown -R www-data:www-data $SHARE_ROOT
+    loge chmod -R ug+ws "$SHARE_ROOT/web/sites/default/files" "$SHARE_ROOT/private"
+    loge chmod -R go=,u=rwX /var/www/html/keys
 }
 
 function update_database {
@@ -122,7 +132,7 @@ function updater_wait {
 function unlock {
     touch private/cron.done
     if [[ -n "$SITE_UPDATER" ]]; then
-        logf '\n### Website update tasks done - let other new pods know they can start serving ###\n';
+        logf '\n### Website update tasks done - let other new replicas know they can start serving ###\n';
         mysql --host="$DB_HOST" --user="$DB_USER" --password="$DB_PASSWORD" -e 'USE `'"$DB_NAME"'`; UPDATE `_gke_init` SET `state` = "SUCCESS" WHERE commit = "'"$SHORT_SHA"'"'
     fi
     loge date
