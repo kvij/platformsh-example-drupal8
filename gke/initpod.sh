@@ -2,7 +2,7 @@
 
 set -eEo pipefail
 APP_ROOT='/app'
-WEB_ROOT='/var/www/html'
+SHARE_ROOT='/var/www/html'
 LOG_FILE="/tmp/initpod.log"
 
 # Abort when something goes wrong
@@ -38,6 +38,8 @@ function print_header {
 function cloud_sql_proxy {
     /cloud_sql_proxy -dir=/cloudsql -verbose=false -instances="kuberdrupal:europe-west4:cloudmysql=tcp:3306" \
         -credential_file="/secrets/cloudsql/credentials.json" &
+
+    sleep 2
 }
 
 # Set up additional environment info
@@ -50,9 +52,9 @@ function detect_environment {
 
 # Copy web files to ephemeral storage
 function prepare_src {
-    log "### Copying repo content to $WEB_ROOT ###"
-    cp 'gke/nginx.conf' "$WEB_ROOT"
-    logt rsync -qr --prune-empty-dirs --chown=wodby:wodby --include-from="gke/rsync-web.include" --exclude='*' "web" "$WEB_ROOT/"
+    log "### Copying repo content to $SHARE_ROOT ###"
+    cp 'gke/nginx.conf' "$SHARE_ROOT"
+    logt rsync -qr --prune-empty-dirs --chown=wodby:wodby --include-from="gke/rsync-web.include" --exclude='*' "web" "$SHARE_ROOT/"
     #FIXME: copy test files and private.
     #FIXME: copy key dir and set permissions
     if [[ -n "$DEVELOPMENT_ENVIRONMENT" ]]
