@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 
 set -eEo pipefail
-APP_ROOT='/app'
-SHARE_ROOT='/var/www/html'
+APP_ROOT='/var/www/html'
+SHARE_ROOT='/mnt/share'
 LOG_FILE="/tmp/initpod.log"
 
 # Abort when something goes wrong

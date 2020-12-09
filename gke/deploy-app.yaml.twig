@@ -38,7 +38,7 @@ spec:
             runAsUser: 0
             runAsNonRoot: false
           command:
-            - "/app/gke/initpod.sh"
+            - "/var/www/html/gke/initpod.sh"
           env: &drupal-env
             - name: PROJECT_ID
               value: "{{PROJECT_ID}}"
@@ -111,7 +111,7 @@ spec:
               readOnly: true
             - mountPath: /etc/ssl/certs
               name: ssl-certs
-            - mountPath: /var/www/html/
+            - mountPath: /mnt/share/
               name: pod-share
       containers:
         # [nginx]
@@ -136,24 +136,24 @@ spec:
           - name: "NGINX_LOG_FORMAT_SHOW_REAL_IP"
             value: "on"
           - name: NGINX_SERVER_EXTRA_CONF_FILEPATH
-            value: "/app/nginx.conf"
+            value: "/var/www/html/nginx.conf"
           - name: NGINX_UPSTREAM_NAME
             value: "{{REPO_NAME_SHORT}}"
           - name: NGINX_BACKEND_HOST
             value: localhost
           - name: NGINX_SERVER_ROOT
-            value: /app/web
+            value: /var/www/html/web
           - name: NGINX_CLIENT_MAX_BODY_SIZE
             value: "40M"
           name: nginx
           ports:
           - containerPort: 80
           volumeMounts:
-          - mountPath: /app
+          - mountPath: /var/www/html
             name: pod-share
             readOnly: true
 {% if ENVIRONMENT == 'prod' or ENVIRONMENT == 'staging' %}
-          - mountPath: /app/web/sites/default/files
+          - mountPath: /var/www/html/web/sites/default/files
             name: nfs
             subPath: "{{REPO_NAME_SHORT}}/{{ENVIRONMENT}}/files"
             readOnly: true
@@ -239,17 +239,17 @@ spec:
             *drupal-env
           volumeMounts:
 {% if ENVIRONMENT == 'prod' or ENVIRONMENT == 'staging' %}
-          - mountPath: /app/web/sites/default/files
+          - mountPath: /var/www/html/web/sites/default/files
             name: nfs
             subPath: "{{REPO_NAME_SHORT}}/{{ENVIRONMENT}}/files"
-          - mountPath: /app/private
+          - mountPath: /var/www/html/private
             name: nfs
             subPath: "{{REPO_NAME_SHORT}}/{{ENVIRONMENT}}/private"
 {% else %}
-          - mountPath: /app/web/sites/default/files
+          - mountPath: /var/www/html/web/sites/default/files
             name: pod-share
             subPath: web/sites/default/files
-          - mountPath: /app/private
+          - mountPath: /var/www/html/private
             name: pod-share
             subPath: private
 {% endif %}
