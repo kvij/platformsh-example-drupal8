@@ -174,13 +174,7 @@ function loge {
         APPEND_LOG='TRUE'
     fi
 
-    # Composer less verbose hack
-    if [[ "$1" = 'composer' ]] || [[ "$4" = 'composer' ]]
-    then
-        "$@" 2>&1 | grep -v '^ ' | tee "$tee_options" "$LOG_FILE"
-    else
-        "$@" 2>&1 | tee "$tee_options" "$LOG_FILE"
-    fi
+    "$@" 2>&1 | tee "$tee_options" "$LOG_FILE"
 }
 
 function send_log {
