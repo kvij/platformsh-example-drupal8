@@ -16,9 +16,6 @@ config:
   # Set this to match the version in your .platform.app.yaml.
   php: 7.2
 
-  # Set composer version.
-  composer_version: '1.10.1'
-
   # Enable xdebug...
   xdebug: true
 
@@ -38,7 +35,6 @@ services:
   appserver:
     build:
       - "cd /tmp && curl -sS https://platform.sh/cli/installer | php || true" # FIXME: Check forced success is still nessesary.
-      - "composer global require hirak/prestissimo"
     run:
       - "cd /app && scripts/ewise/conditional_import.sh"
 

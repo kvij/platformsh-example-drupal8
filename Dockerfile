@@ -7,7 +7,6 @@ ARG TARGET_ENVIRONMENT
 WORKDIR /var/www/html
 
 USER root
-RUN composer self-update 1.10.1
 RUN curl --silent --output '/cloud_sql_proxy' 'https://storage.googleapis.com/ewise-public-files/gke/cloud_sql_proxy' \
     && chmod ugo+x '/cloud_sql_proxy'
 COPY --chown=wodby:wodby gke/cron.sh gke/buildscript.sh /var/www/html/gke/
