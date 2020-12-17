@@ -11,6 +11,9 @@
 # Load the path to the .sql.gz file from the first argument and fallback to default
 file_name=${1:-default.sql.gz}
 
+# Database server might be started but not completely ready. Wait for it.
+mysql --host="$MYSQL_HOST" --user="$MYSQL_USER" --password="$MYSQL_PASSWORD" -e 'SELECT 1;' > /dev/null 2>&1 || sleep 4;
+
 # Only import when $MYSQL_DATABASE/config does not exists.
 if ! mysql --host="$MYSQL_HOST" --user="$MYSQL_USER" --password="$MYSQL_PASSWORD" -e 'SELECT 1 FROM config LIMIT 1;' "$MYSQL_DATABASE" > /dev/null 2>&1
 then

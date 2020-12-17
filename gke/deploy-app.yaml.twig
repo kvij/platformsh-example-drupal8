@@ -7,9 +7,6 @@ metadata:
     app: "{{REPO_NAME_SHORT}}{{ENVIRONMENT}}"
 spec:
   replicas: {{REPLICAS}}
-  # minReplicas: 2
-  # maxReplicas: 5
-  # targetCPUUtilizationPercentage: 50
   selector:
     matchLabels:
       app: "{{REPO_NAME_SHORT}}{{ENVIRONMENT}}"
@@ -31,17 +28,92 @@ spec:
                 - "{{REPO_NAME_SHORT}}{{ENVIRONMENT}}"
             topologyKey: "kubernetes.io/hostname"
       initContainers:
-      - name: volume-mount-hack
-        image: busybox
-        command: ["sh", "-c",
-          "mkdir -p /var/www/html/web/sites/default/files && chown -R 1000:1000 /var/www/html && chmod -R ug+ws /var/www/html"
-        ]
-        volumeMounts:
-        - mountPath: /var/www/html
-          name: drupal-files
+        - image: "eu.gcr.io/{{PROJECT_ID}}/{{REPO_NAME}}/{{ENVIRONMENT}}:latest"
+          name: drupal-init
+          resources:
+            requests:
+              cpu: "50m"
+              memory: "512Mi"
+          securityContext:
+            runAsUser: 0
+            runAsNonRoot: false
+          command:
+            - "/var/www/html/gke/initpod.sh"
+          env: &drupal-env
+            - name: PROJECT_ID
+              value: "{{PROJECT_ID}}"
+            - name: ENVIRONMENT
+              value: "{{ENVIRONMENT}}"
+            - name: REPLICAS
+              value: "{{REPLICAS}}"
+            - name: REPO_NAME
+              value: "{{REPO_NAME_SHORT}}"
+            - name: BRANCH_NAME
+              value: "{{BRANCH_NAME}}"
+            - name: SHORT_SHA
+              value: "{{SHORT_SHA}}"
+            - name: TAG_NAME
+              value: "{{TAG_NAME}}"
+            - name: COMMITMSG
+              value: '{{COMMITMSG_YML|raw}}'
+            - name: PHP_FPM_PM_START_SERVERS
+              value: "8"
+            - name: PHP_FPM_PM_MIN_SPARE_SERVERS
+              value: "8"
+            - name: PHP_FPM_PM_MAX_SPARE_SERVERS
+              value: "12"
+            - name: PHP_FPM_PM_MAX_CHILDREN
+              value: "20"
+            - name: PHP_OPCACHE_MEMORY_CONSUMPTION
+              value: "256"
+            - name: PHP_OPCACHE_MAX_ACCELERATED_FILES
+              value: "6144"
+            - name: PHP_REALPATH_CACHE_SIZE
+              value: 1M
+            - name: PHP_MEMORY_LIMIT
+              value: 512M
+            - name: PHP_FPM_CLEAR_ENV
+              value: "no"
+            - name: KUBER
+              value: "true"
+            - name: PHP_SITE_NAME
+              value: "{{REPO_NAME_SHORT}}"
+            - name: PHP_HOST_NAME
+              value: localhost:8000
+            - name: PHP_SENDMAIL_PATH
+              value: /usr/sbin/sendmail -t -i
+            - name: DB_HOST
+              value: "127.0.0.1"
+            - name: DB_PORT
+              value: "3306"
+            - name: DB_NAME
+              value: "{{DATABASE_NAME}}"
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: "cloudsql-db-{{REPO_NAME_SHORT}}"
+                  key: password
+            - name: DB_USER
+              valueFrom:
+                secretKeyRef:
+                  name: "cloudsql-db-{{REPO_NAME_SHORT}}"
+                  key: username
+            - name: SLACK_BOT_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: slack-bot-token
+                  key: token
+          volumeMounts:
+            - mountPath: /cloudsql
+              name: cloudsql
+            - mountPath: /secrets/cloudsql
+              name: cloudsql-instance-credentials
+              readOnly: true
+            - mountPath: /mnt/share
+              name: pod-share
       containers:
         # [nginx]
-        - image: wodby/nginx:1.16
+        - image: wodby/nginx:1.18
           resources:
             requests:
               cpu: "20m"
@@ -62,7 +134,7 @@ spec:
           - name: "NGINX_LOG_FORMAT_SHOW_REAL_IP"
             value: "on"
           - name: NGINX_SERVER_EXTRA_CONF_FILEPATH
-            value: "/var/www/html/gke/nginx.conf"
+            value: /config/nginx.conf
           - name: NGINX_UPSTREAM_NAME
             value: "{{REPO_NAME_SHORT}}"
           - name: NGINX_BACKEND_HOST
@@ -75,8 +147,12 @@ spec:
           ports:
           - containerPort: 80
           volumeMounts:
-          - mountPath: /var/www/html
-            name: drupal-files
+          - mountPath: /config
+            subPath: config
+            name: pod-share
+          - mountPath: /var/www/html/web
+            subPath: web
+            name: pod-share
             readOnly: true
 {% if ENVIRONMENT == 'prod' or ENVIRONMENT == 'staging' %}
           - mountPath: /var/www/html/web/sites/default/files
@@ -102,8 +178,6 @@ spec:
             readOnly: true
           - name: cloudsql
             mountPath: /cloudsql
-          - name: ssl-certs
-            mountPath: /etc/ssl/certs
 
         # [smtpd_relay_container]
         - image: applariat/tx-smtp-relay:latest
@@ -141,14 +215,10 @@ spec:
               cpu: "50m"
               memory: "512Mi"
           readinessProbe:  # Check when`the pod is ready and then replace existing pods
-            httpGet:
-              path: /health?readiness
-              port: 80
-              httpHeaders:
-              - name: Host
-                value: healthcheck
-            initialDelaySeconds: 1
-            periodSeconds: 30
+            tcpSocket:
+              port: 9000
+            initialDelaySeconds: 2
+            periodSeconds: 5
             timeoutSeconds: 2
           livenessProbe:  # Check if pod needs to be killed and restarted
             httpGet:
@@ -162,72 +232,8 @@ spec:
             timeoutSeconds: 2
             failureThreshold: 2
           env:
-          - name: PROJECT_ID
-            value: "{{PROJECT_ID}}"
-          - name: ENVIRONMENT
-            value: "{{ENVIRONMENT}}"
-          - name: REPLICAS
-            value: "{{REPLICAS}}"
-          - name: REPO_NAME
-            value: "{{REPO_NAME_SHORT}}"
-          - name: BRANCH_NAME
-            value: "{{BRANCH_NAME}}"
-          - name: SHORT_SHA
-            value: "{{SHORT_SHA}}"
-          - name: TAG_NAME
-            value: "{{TAG_NAME}}"
-          - name: COMMITMSG
-            value: '{{COMMITMSG_YML|raw}}'
-          - name: PHP_FPM_PM_START_SERVERS
-            value: "8"
-          - name: PHP_FPM_PM_MIN_SPARE_SERVERS
-            value: "8"
-          - name: PHP_FPM_PM_MAX_SPARE_SERVERS
-            value: "12"
-          - name: PHP_FPM_PM_MAX_CHILDREN
-            value: "20"
-          - name: PHP_OPCACHE_MEMORY_CONSUMPTION
-            value: "256"
-          - name: PHP_OPCACHE_MAX_ACCELERATED_FILES
-            value: "6144"
-          - name: PHP_REALPATH_CACHE_SIZE
-            value: 1M
-          - name: PHP_MEMORY_LIMIT
-            value: 512M
-          - name: PHP_FPM_CLEAR_ENV
-            value: "no"
-          - name: KUBER
-            value: "true"
-          - name: PHP_SITE_NAME
-            value: "{{REPO_NAME_SHORT}}"
-          - name: PHP_HOST_NAME
-            value: localhost:8000
-          - name: PHP_SENDMAIL_PATH
-            value: /usr/sbin/sendmail -t -i
-          - name: DB_HOST
-            value: "127.0.0.1"
-          - name: DB_PORT
-            value: "3306"
-          - name: DB_NAME
-            value: "{{DATABASE_NAME}}"
-          - name: DB_PASSWORD
-            valueFrom:
-              secretKeyRef:
-                name: "cloudsql-db-{{REPO_NAME_SHORT}}"
-                key: password
-          - name: DB_USER
-            valueFrom:
-              secretKeyRef:
-                name: "cloudsql-db-{{REPO_NAME_SHORT}}"
-                key: username
-          - name: SLACK_BOT_TOKEN
-            valueFrom:
-              secretKeyRef:
-                name: slack-bot-token
-                key: token
+            *drupal-env
           volumeMounts:
-          - mountPath: /var/www/html
-            name: drupal-files
 {% if ENVIRONMENT == 'prod' or ENVIRONMENT == 'staging' %}
           - mountPath: /var/www/html/web/sites/default/files
             name: nfs
@@ -235,18 +241,21 @@ spec:
           - mountPath: /var/www/html/private
             name: nfs
             subPath: "{{REPO_NAME_SHORT}}/{{ENVIRONMENT}}/private"
+{% else %}
+          - mountPath: /var/www/html/web/sites/default/files
+            name: pod-share
+            subPath: web/sites/default/files
+          - mountPath: /var/www/html/private
+            name: pod-share
+            subPath: private
 {% endif %}
-          - name: "cloudsql-db-{{REPO_NAME_SHORT}}"
-            mountPath: /cloudsqldb
-            readOnly: true
           lifecycle:
             postStart:
               exec:
-                command:
-                - "/usr/src/app/gke/initpod.sh"
+                command: ["/bin/sh", "-c", "sudo -E /usr/sbin/crond" ]
 
       volumes:
-        - name: drupal-files
+        - name: pod-share
           emptyDir: {}
 {% if ENVIRONMENT == 'prod' or ENVIRONMENT == 'staging' %}
         - name: nfs
@@ -259,8 +268,5 @@ spec:
         - name: "cloudsql-db-{{REPO_NAME_SHORT}}"
           secret:
             secretName: "cloudsql-db-{{REPO_NAME_SHORT}}"
-        - name: ssl-certs
-          hostPath:
-            path: /etc/ssl/certs
         - name: cloudsql
-          emptyDir:
+          emptyDir: {}
