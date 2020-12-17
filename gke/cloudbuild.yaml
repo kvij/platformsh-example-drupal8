@@ -19,6 +19,7 @@ steps:
 - name: 'gcr.io/cloud-builders/docker'
   args: [
     'build', '--build-arg', 'BASE_IMAGE_TAG=7.2',
+    '--build-arg', 'TARGET_ENVIRONMENT=$_ENVIRONMENT',
     '-t', 'eu.gcr.io/$PROJECT_ID/$REPO_NAME/$_ENVIRONMENT:latest',
     '--cache-from', 'eu.gcr.io/$PROJECT_ID/$REPO_NAME/$_ENVIRONMENT:latest',
     '.'

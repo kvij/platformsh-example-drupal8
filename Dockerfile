@@ -2,6 +2,8 @@
 ARG BASE_IMAGE_TAG
 
 FROM wodby/drupal-php:${BASE_IMAGE_TAG}
+
+ARG TARGET_ENVIRONMENT
 WORKDIR /var/www/html
 
 USER root
@@ -15,5 +17,5 @@ USER wodby
 COPY scripts/composer /var/www/html/scripts/composer/
 COPY patches /var/www/html/patches/
 COPY composer.* /var/www/html/
-RUN gke/buildscript.sh
+RUN gke/buildscript.sh ${TARGET_ENVIRONMENT}
 COPY . /var/www/html/
