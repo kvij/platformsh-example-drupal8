@@ -38,10 +38,14 @@ function print_header {
 function cloud_sql_proxy {
     # Support old and new cluster. FIXME: Remove credential.json support after migration
     local cloudsql_auth_option='-ip_address_types=PRIVATE'
-    [[ -f "/secrets/cloudsql/credentials.json" ]] && \
+    local cloudsql_instances='kuberdrupal:europe-west4:cloudmysql=tcp:3306'
+    if [[ -f "/secrets/cloudsql/credentials.json" ]]
+    then
         cloudsql_auth_option='-credential_file=/secrets/cloudsql/credentials.json'
+	cloudsql_instances="$cloudsql_instances,${cloud_sql_instances//tcp:/tcp6:}"
+    fi
 
-    /cloud_sql_proxy -dir=/cloudsql -verbose=false -instances="kuberdrupal:europe-west4:cloudmysql=tcp:3306" \
+    /cloud_sql_proxy -dir=/cloudsql -verbose=false -instances="$cloudsql_instances" \
         "$cloudsql_auth_option" &
 
     while ! nc -z -w1 localhost 3306; do
