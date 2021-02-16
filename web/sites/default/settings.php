@@ -27,6 +27,9 @@ $settings['file_scan_ignore_directories'] = [
 // local development.
 // $settings['hash_salt'] = 'change_me';
 
+// Ensure dependeny injection cahce is invalidated when dependencies are modfied.
+$settings['deployment_identifier'] = filemtime('../composer.lock');
+
 // Set up a config sync directory.
 //
 // This is defined inside the read-only "config" directory, deployed via Git.
