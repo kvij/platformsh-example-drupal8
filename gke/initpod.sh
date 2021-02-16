@@ -154,6 +154,7 @@ function abort {
     mysql --host="$DB_HOST" --user="$DB_USER" --password="$DB_PASSWORD" -e 'USE `'"$DB_NAME"'`; UPDATE `_gke_init` SET `state` = "FAILED" WHERE commit = "'"$SHORT_SHA"'"'
     log "Aborting..."
     send_log
+    sleep 1800 # Keep container alive for debugging
     exit 1
 }
 
