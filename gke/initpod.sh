@@ -10,6 +10,9 @@ trap abort ERR
 # Unlock other pods and start serving on normal exit
 trap unlock EXIT
 
+# Init-container skips the entrypoint. The entrypoint configures php.ini based on env.
+/docker-entrypoint.sh
+
 function main {
     cd "$APP_ROOT"
     cloud_sql_proxy
