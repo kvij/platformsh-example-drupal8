@@ -1,0 +1,45 @@
+substitutions:
+  _CLOUDSDK_COMPUTE_REGION: 'europe-west4'
+  _CLOUDSDK_COMPUTE_ZONE: ''
+  _CLOUDSDK_CONTAINER_CLUSTER: 'testing'
+  _ENVIRONMENT: 'staging'
+  _WORKING_DIR: 'gke'
+
+steps:
+  - name: 'gcr.io/cloud-builders/docker'
+    entrypoint: 'bash'
+    args: ['-c', 'docker pull eu.gcr.io/$PROJECT_ID/$REPO_NAME/${_ENVIRONMENT}:latest || exit 0']
+
+  - name: 'gcr.io/cloud-builders/docker'
+    args: [
+        'build', '--build-arg', 'BASE_IMAGE_TAG=7.2',
+        '--build-arg', 'TARGET_ENVIRONMENT=${_ENVIRONMENT}',
+        '-t', 'eu.gcr.io/$PROJECT_ID/$REPO_NAME/${_ENVIRONMENT}:latest',
+        '--cache-from', 'eu.gcr.io/$PROJECT_ID/$REPO_NAME/${_ENVIRONMENT}:latest',
+        '.'
+    ]
+    timeout: 500s
+
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['push', 'eu.gcr.io/$PROJECT_ID/$REPO_NAME/${_ENVIRONMENT}:latest']
+
+  - name: 'eu.gcr.io/$PROJECT_ID/helm:latest'
+    env:
+      - 'CLOUDSDK_CORE_PROJECT=$PROJECT_ID'
+      - 'CLOUDSDK_COMPUTE_REGION=${_CLOUDSDK_COMPUTE_REGION}'
+      - 'CLOUDSDK_COMPUTE_ZONE=${_CLOUDSDK_COMPUTE_ZONE}'
+      - 'CLOUDSDK_CONTAINER_CLUSTER=${_CLOUDSDK_CONTAINER_CLUSTER}'
+    dir: ${_WORKING_DIR}
+    args:
+      - make
+      - test/${_ENVIRONMENT}
+  - name: 'eu.gcr.io/$PROJECT_ID/helm:latest'
+    env:
+      - 'CLOUDSDK_CORE_PROJECT=$PROJECT_ID'
+      - 'CLOUDSDK_COMPUTE_REGION=${_CLOUDSDK_COMPUTE_REGION}'
+      - 'CLOUDSDK_COMPUTE_ZONE=${_CLOUDSDK_COMPUTE_ZONE}'
+      - 'CLOUDSDK_CONTAINER_CLUSTER=${_CLOUDSDK_CONTAINER_CLUSTER}'
+    dir: ${_WORKING_DIR}
+    args:
+      - make
+      - deploy/${_ENVIRONMENT}

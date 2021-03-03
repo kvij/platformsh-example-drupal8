@@ -1,0 +1,18 @@
+drupal:
+  autoscaling:
+    enabled: false
+  initContainers:
+    drupalInit:
+      image:
+        repository: eu.gcr.io/kuberdrupal/github_ewisenl_{{REPO_NAME}}/testing
+        tag: latest
+  containers:
+    drupal:
+      database:
+        name: {{REPO_DB_NAME}}testing
+      image:
+        repository: eu.gcr.io/kuberdrupal/github_ewisenl_{{REPO_NAME}}/testing
+        tag: latest
+global:
+  env:
+    name: testing

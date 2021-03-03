@@ -1,0 +1,26 @@
+drupal:
+  nameOverride: {{REPO_NAME}}
+  autoscaling:
+    enabled: false
+  initContainers:
+    drupalInit:
+      image:
+        repository: eu.gcr.io/kuberdrupal/github_ewisenl_{{REPO_NAME}}/staging
+        tag: latest
+  containers:
+    drupal:
+      database:
+        name: {{REPO_DB_NAME}}staging
+      image:
+        repository: eu.gcr.io/kuberdrupal/github_ewisenl_{{REPO_NAME}}/staging
+        tag: latest
+
+global:
+  env:
+    name: testing
+    projectId: PROJECT_ID
+    repoName: REPO_NAME
+    commitMsg: COMMITMSG_YML
+    commitSha: COMMITSHA
+    branchName: BRANCH_NAME
+    tagName: TAG_NAME

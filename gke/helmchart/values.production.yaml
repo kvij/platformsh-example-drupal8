@@ -1,0 +1,21 @@
+drupal:
+  autoscaling:
+    enabled: false
+  replicas: 2
+  initContainers:
+    drupalInit:
+      image:
+        repository: eu.gcr.io/kuberdrupal/github_ewisenl_{{REPO_NAME}}/production
+        tag: latest
+  containers:
+    drupal:
+      database:
+        name: {{REPO_DB_NAME}}prod
+      image:
+        repository: eu.gcr.io/kuberdrupal/github_ewisenl_{{REPO_NAME}}/production
+        tag: latest
+    smtp:
+      relayHost: '[in-v3.mailjet.com]:587'
+global:
+  env:
+    name: production
