@@ -45,7 +45,8 @@ function cloud_sql_proxy {
     if [[ -f "/secrets/cloudsql/credentials.json" ]]
     then
         cloudsql_auth_option='-credential_file=/secrets/cloudsql/credentials.json'
-	cloudsql_instances="$cloudsql_instances,${cloud_sql_instances//tcp:/tcp6:}"
+    else
+	      cloudsql_instances="$cloudsql_instances,${cloudsql_instances//tcp:/tcp6:}"
     fi
 
     /cloud_sql_proxy -dir=/cloudsql -verbose=false -instances="$cloudsql_instances" \
