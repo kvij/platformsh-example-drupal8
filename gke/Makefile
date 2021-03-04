@@ -1,3 +1,4 @@
+CHART ?= ./helmchart
 PROJECT_ID ?= kuberdrupal
 RELEASE ?= {{REPO_NAME}}
 BRANCH_NAME ?= $(shell git branch --show-current || echo "HEAD")
@@ -15,8 +16,8 @@ test: test/testing test/staging test/production
 test/%: dependencies
 	@echo "Testing [$*]..."
 	@helm lint \
-		--values=values.yaml \
-		--values=values.$*.yaml \
+		--values=${CHART}/values.yaml \
+		--values=${CHART}/values.$*.yaml \
 		--set-string=global.env.projectId=$(PROJECT_ID) \
 		--set-string=global.env.repoName=gcloud \
 		--set-string=global.env.branchName=$(BRANCH_NAME) \
@@ -27,15 +28,15 @@ test/%: dependencies
 	@helm upgrade --install \
 		--dry-run \
 		--namespace=$* \
-		--values=values.yaml \
-		--values=values.$*.yaml \
+		--values=${CHART}/values.yaml \
+		--values=${CHART}/values.$*.yaml \
 		--set-string=global.env.projectId=$(PROJECT_ID) \
 		--set-string=global.env.repoName=gcloud \
 		--set-string=global.env.branchName=$(BRANCH_NAME) \
 		--set-string=global.env.tagName=$(TAG_NAME) \
 		--set-string=global.env.commitSha=$(COMMIT_SHA) \
 		--set-string=global.env.commitMsg="$(COMMIT_MSG)" \
-		$(RELEASE)-$* ./helmchart $(HIDE_OUTPUT)
+		$(RELEASE)-$* ${CHART} $(HIDE_OUTPUT)
 	@echo "Success!"
 
 deploy: deploy/testing
@@ -43,15 +44,15 @@ deploy: deploy/testing
 deploy/%: dependencies
 	@helm upgrade --install \
 		--namespace=$* \
-		--values=values.yaml \
-		--values=values.$*.yaml \
+		--values=${CHART}/values.yaml \
+		--values=${CHART}/values.$*.yaml \
 		--set-string=global.env.projectId=$(PROJECT_ID) \
 		--set-string=global.env.repoName=gcloud \
 		--set-string=global.env.branchName=$(BRANCH_NAME) \
 		--set-string=global.env.tagName=$(TAG_NAME) \
 		--set-string=global.env.commitSha=$(COMMIT_SHA) \
 		--set-string=global.env.commitMsg="$(COMMIT_MSG)" \
-		$(RELEASE)-$* ./helmchart
+		$(RELEASE)-$* ${CHART}
 
 uninstall: uninstall/testing
 
@@ -59,4 +60,4 @@ uninstall/%: dependencies
 	@helm uninstall $(RELEASE)-$* -n $*
 
 dependencies:
-	@helm dependency update ./helmchart
+	@helm dependency update ${CHART}
