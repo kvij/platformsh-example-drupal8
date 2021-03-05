@@ -1,4 +1,6 @@
 drupal:
+  flags:
+    mountNfs: false
   autoscaling:
     enabled: false
   initContainers:
