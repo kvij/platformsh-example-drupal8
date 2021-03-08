@@ -5,7 +5,7 @@ description: A Helm chart for {{REPO_NAME}}
 appVersion: "1.0.0"
 dependencies:
 - name: drupal
-  version: 1.0.0
+  version: ~1.x
   repository: "https://ewise-helm-charts.storage.googleapis.com"
 maintainers:
   - name: Karel van IJperen
