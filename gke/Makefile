@@ -6,14 +6,16 @@ TAG_NAME ?= $(shell git describe --exact-match --tags 2>/dev/null || echo "")
 COMMIT_SHA ?= $(shell git rev-parse HEAD)
 COMMIT_MSG ?= $(shell /usr/bin/printf "%q " `git log --pretty=format:'%s' -1`)
 HIDE_OUTPUT ?= > /dev/null
+CONTEXT_SWITCH_SCRIPT_DIR ?= ../scripts/helm
 
 .PHONY: dependencies
 .PHONY: test
-.PHONY: deploy uninstall
+.PHONY: deploy uninstall deploy/all uninstall/all
+.PHONY: context
 
 test: test/testing test/staging test/production
 
-test/%: dependencies
+test/%: context/% dependencies
 	@echo "Testing [$*]..."
 	@helm lint \
 		--values=${CHART}/values.yaml \
@@ -39,9 +41,9 @@ test/%: dependencies
 		$(RELEASE)-$* ${CHART} $(HIDE_OUTPUT)
 	@echo "Success!"
 
-deploy: deploy/testing
+deploy/all: deploy/testing deploy/staging deploy/production
 
-deploy/%: dependencies
+deploy/%: context/% dependencies
 	@helm upgrade --install \
 		--namespace=$* \
 		--values=${CHART}/values.yaml \
@@ -54,10 +56,15 @@ deploy/%: dependencies
 		--set-string=global.env.commitMsg="$(COMMIT_MSG)" \
 		$(RELEASE)-$* ${CHART}
 
-uninstall: uninstall/testing
+uninstall/all: uninstall/testing uninstall/staging uninstall/production
 
-uninstall/%: dependencies
+uninstall/%: context/% dependencies
 	@helm uninstall $(RELEASE)-$* -n $*
 
 dependencies:
 	@helm dependency update ${CHART}
+
+context:
+	@$(CONTEXT_SWITCH_SCRIPT_DIR)/switch_context.sh
+context/%:
+	@$(CONTEXT_SWITCH_SCRIPT_DIR)/switch_context.sh $*
