@@ -7,14 +7,14 @@ drupal:
   initContainers:
     drupalInit:
       image:
-        repository: eu.gcr.io/kuberdrupal/github_ewisenl_{{REPO_NAME}}/production
+        repository: eu.gcr.io/kuberdrupal/github_ewisenl_{{REPO_NAME}}/prod
         tag: latest
   containers:
     drupal:
       database:
         name: {{REPO_DB_NAME}}prod
       image:
-        repository: eu.gcr.io/kuberdrupal/github_ewisenl_{{REPO_NAME}}/production
+        repository: eu.gcr.io/kuberdrupal/github_ewisenl_{{REPO_NAME}}/prod
         tag: latest
     smtp:
       relayHost: '[in-v3.mailjet.com]:587'
