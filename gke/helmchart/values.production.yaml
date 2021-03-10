@@ -1,4 +1,6 @@
 drupal:
+  flags:
+    addKeyCdnApiKey: true
   autoscaling:
     enabled: false
   replicas: 2
