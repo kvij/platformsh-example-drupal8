@@ -59,7 +59,7 @@ function cloud_sql_proxy {
 
 # Set up additional environment info
 function detect_environment {
-    if [[ -n "$ENVIRONMENT" ]] && [[ "$ENVIRONMENT" != "staging" ]] && [[ "$ENVIRONMENT" != "prod" ]]
+    if [[ -n "$ENVIRONMENT" ]] && [[ "$ENVIRONMENT" = "testing" ]]
     then
         DEVELOPMENT_ENVIRONMENT='TRUE'
     fi
