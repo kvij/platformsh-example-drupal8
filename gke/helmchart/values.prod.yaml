@@ -20,4 +20,4 @@ drupal:
       relayHost: '[in-v3.mailjet.com]:587'
 global:
   env:
-    name: production
+    name: prod

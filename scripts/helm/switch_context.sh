@@ -6,7 +6,7 @@ region="europe-west4"
 environment="$1"
 if [[ "$1" == "" ]]; then
     echo "Please select an environment:"
-    select environment in testing staging production
+    select environment in testing staging prod
     do
         if [[ ${environment} != "" ]]; then
             break
@@ -20,11 +20,11 @@ case "${environment}" in
         cluster="testing"
         ;;
     "production")
-        context="gke_kuberdrupal_europe-west4_production"
+        context="gke_kuberdrupal_europe-west4_prod"
         cluster="production"
         ;;
     *)
-        echo "Usage: ./$0 <testing|staging|production>"
+        echo "Usage: ./$0 <testing|staging|prod>"
         exit 1
         ;;
 esac

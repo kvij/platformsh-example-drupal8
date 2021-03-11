@@ -13,7 +13,7 @@ CONTEXT_SWITCH_SCRIPT_DIR ?= ../scripts/helm
 .PHONY: deploy uninstall deploy/all uninstall/all
 .PHONY: context
 
-test: test/testing test/staging test/production
+test: test/testing test/staging test/prod
 
 test/%: context/% dependencies
 	@echo "Testing [$*]..."
@@ -41,7 +41,7 @@ test/%: context/% dependencies
 		$(RELEASE)-$* ${CHART} $(HIDE_OUTPUT)
 	@echo "Success!"
 
-deploy/all: deploy/testing deploy/staging deploy/production
+deploy/all: deploy/testing deploy/staging deploy/prod
 
 deploy/%: context/% dependencies
 	@helm upgrade --install \
@@ -56,7 +56,7 @@ deploy/%: context/% dependencies
 		--set-string=global.env.commitMsg="$(COMMIT_MSG)" \
 		$(RELEASE)-$* ${CHART}
 
-uninstall/all: uninstall/testing uninstall/staging uninstall/production
+uninstall/all: uninstall/testing uninstall/staging uninstall/prod
 
 uninstall/%: context/% dependencies
 	@helm uninstall $(RELEASE)-$* -n $*
